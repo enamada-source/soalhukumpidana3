@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Tryout Online CAT - UU No. 1 Tahun 2023</title>
+    <!-- Tailwind CSS untuk Desain Modern & Responsive -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome untuk Ikon Modern -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mammoth.js untuk membaca file .docx tambahan secara offline -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <style>
+        .sticky-timer {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+    <!-- ==================== 1. HALAMAN PEMBUKA / DASHBOARD ==================== -->
+    <div id="landing-page" class="min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full border border-slate-100 text-center">
+            <div class="w-20 h-20 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-lg shadow-blue-200">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">TRYOUT ONLINE</h1>
+            <p class="text-slate-500 mb-6">Sistem Computer Assisted Test (CAT) - Bank Soal UU No. 1 Tahun 2023 Terintegrasi</p>
+            
+            <!-- Informasi Berkas Terintegrasi -->
+            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-left mb-6 flex items-start gap-3">
+                <div class="text-emerald-600 text-xl mt-0.5"><i class="fa-solid fa-circle-check"></i></div>
+                <div>
+                    <h4 class="font-bold text-emerald-900 text-sm">Dokumen Berhasil Dimuat Terintegrasi</h4>
+                    <p class="text-xs text-emerald-700 mt-0.5">
+                        Sebanyak 100 butir soal materi Hukum Pidana Nasional & Paradigma Baru KUHP dari berkas Anda telah dimasukkan langsung ke dalam sistem. Anda juga masih dapat memperbarui bank soal dengan mengunggah berkas baru di bawah jika diperlukan.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Fitur Tambahan Import Berkas Baru -->
+            <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-left mb-6">
+                <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-2"><i class="fa-solid fa-file-import"></i> Perbarui Berkas Soal Baru (Opsional) :</label>
+                <input type="file" id="file-input" accept=".docx,.txt" class="block w-full text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" />
+                <div id="file-status" class="text-xs mt-1 text-slate-500">Menggunakan 100 Soal Bawaan Dokumen Utama.</div>
+            </div>
+
+            <!-- Informasi Ujian -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <div class="text-xs text-slate-400 font-medium mb-1">JUMLAH SOAL</div>
+                    <div id="info-total-soal" class="text-xl font-bold text-slate-700">100 Soal</div>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <div class="text-xs text-slate-400 font-medium mb-1">DURASI</div>
+                    <div class="text-xl font-bold text-slate-700">90 Menit</div>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <div class="text-xs text-slate-400 font-medium mb-1">PENILAIAN</div>
+                    <div class="text-xl font-bold text-slate-700">Otomatis</div>
+                </div>
+            </div>
+
+            <!-- Nama Peserta -->
+            <div class="mb-6 text-left">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Peserta :</label>
+                <input type="text" id="username" value="Peserta Tryout" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+            </div>
+
+            <button id="btn-start" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all duration-200 cursor-pointer text-lg">
+                Mulai Ujian <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ==================== 2. HALAMAN UTAMA UJIAN (CAT INTERFACE) ==================== -->
+    <div id="exam-page" class="hidden min-h-screen flex flex-col">
+        <!-- Sticky Header (Timer & Info) -->
+        <header class="sticky-timer bg-white border-b border-slate-200 shadow-sm px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm tracking-wider">CAT SYSTEM</span>
+                <h2 class="font-bold text-slate-800" id="exam-user-display">Peserta: -</h2>
+            </div>
+            
+            <!-- Timer Display -->
+            <div id="timer-container" class="flex items-center gap-3 bg-slate-100 px-5 py-2.5 rounded-xl border border-slate-200 transition-all">
+                <i class="fa-regular fa-clock text-xl text-slate-500" id="timer-icon"></i>
+                <span id="timer" class="font-mono text-2xl font-bold text-slate-700">90:00</span>
+            </div>
+
+            <button onclick="confirmEndExam()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-stop-circle"></i> Selesai Ujian
+            </button>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="flex-1 flex flex-col md:flex-row">
+            <!-- Sisi Kiri: Konten Soal -->
+            <main class="flex-1 p-6 md:p-8 flex flex-col justify-between">
+                <div class="max-w-3xl w-full mx-auto">
+                    <!-- Kotak Soal -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                                SOAL NOMOR <span id="current-question-num">1</span>
+                            </span>
+                        </div>
+                        
+                        <!-- Teks Soal -->
+                        <p id="question-text" class="text-lg text-slate-800 font-medium leading-relaxed mb-8">
+                            Memuat butir soal...
+                        </p>
+
+                        <!-- Pilihan Jawaban (A, B, C, D) -->
+                        <div class="space-y-3" id="options-container"></div>
+                    </div>
+                </div>
+
+                <!-- Navigasi Bawah Soal -->
+                <div class="max-w-3xl w-full mx-auto flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 pt-6">
+                    <div class="flex gap-3">
+                        <button onclick="prevQuestion()" id="btn-prev" class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition flex items-center gap-2">
+                            <i class="fa-solid fa-chevron-left"></i> Sebelumnya
+                        </button>
+                        <button onclick="toggleDoubtful()" id="btn-doubt" class="px-5 py-2.5 bg-amber-50 border border-amber-300 text-amber-700 font-semibold rounded-xl hover:bg-amber-100 transition flex items-center gap-2">
+                            <i class="fa-regular fa-flag"></i> Ragu-Ragu
+                        </button>
+                    </div>
+                    <button onclick="nextQuestion()" id="btn-next" class="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-md shadow-blue-100 transition flex items-center gap-2">
+                        Selanjutnya <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </main>
+
+            <!-- Sisi Kanan: Sidebar Navigasi Nomor Soal & Editor Khusus -->
+            <aside class="w-full md:w-80 bg-white border-t md:border-t-0 md:border-l border-slate-200 p-6 flex flex-col justify-between gap-6 overflow-y-auto">
+                <div>
+                    <h3 class="font-bold text-slate-990 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-th"></i> Navigasi Soal
+                    </h3>
+                    
+                    <!-- Grid Nomor Soal -->
+                    <div id="nav-grid" class="grid grid-cols-5 gap-2 max-h-[250px] overflow-y-auto p-1"></div>
+
+                    <!-- Petunjuk Warna -->
+                    <div class="mt-4 pt-4 border-t border-slate-100 space-y-1.5 text-xs font-medium text-slate-500">
+                        <div class="flex items-center gap-2">
+                            <span class="w-4 h-4 rounded bg-slate-100 border border-slate-300 block"></span> Belum dijawab
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-4 h-4 rounded bg-blue-600 block"></span> Sudah dijawab
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-4 h-4 rounded bg-amber-400 block"></span> Ragu-ragu
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL TAMBAHAN: LIVE EDITOR SOAL & JAWABAN -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-gear text-blue-600"></i> Panel Editor Soal <span id="editor-num-info" class="text-blue-600">(#1)</span>
+                    </h4>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Isi Pertanyaan:</label>
+                            <textarea id="edit-question-text" rows="3" class="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white outline-none" oninput="updateLiveQuestionData()"></textarea>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase">Pilihan Jawaban & Kunci:</label>
+                            
+                            <div class="flex gap-2 items-center">
+                                <input type="radio" name="edit-correct-key" value="A" onchange="updateLiveQuestionData()" class="w-3.5 h-3.5 text-blue-600">
+                                <span class="text-xs font-bold text-slate-500">A:</span>
+                                <input type="text" id="edit-opt-A" oninput="updateLiveQuestionData()" class="w-full p-1.5 border border-slate-300 rounded-md text-xs bg-white outline-none">
+                            </div>
+
+                            <div class="flex gap-2 items-center">
+                                <input type="radio" name="edit-correct-key" value="B" onchange="updateLiveQuestionData()" class="w-3.5 h-3.5 text-blue-600">
+                                <span class="text-xs font-bold text-slate-500">B:</span>
+                                <input type="text" id="edit-opt-B" oninput="updateLiveQuestionData()" class="w-full p-1.5 border border-slate-300 rounded-md text-xs bg-white outline-none">
+                            </div>
+
+                            <div class="flex gap-2 items-center">
+                                <input type="radio" name="edit-correct-key" value="C" onchange="updateLiveQuestionData()" class="w-3.5 h-3.5 text-blue-600">
+                                <span class="text-xs font-bold text-slate-500">C:</span>
+                                <input type="text" id="edit-opt-C" oninput="updateLiveQuestionData()" class="w-full p-1.5 border border-slate-300 rounded-md text-xs bg-white outline-none">
+                            </div>
+
+                            <div class="flex gap-2 items-center">
+                                <input type="radio" name="edit-correct-key" value="D" onchange="updateLiveQuestionData()" class="w-3.5 h-3.5 text-blue-600">
+                                <span class="text-xs font-bold text-slate-500">D:</span>
+                                <input type="text" id="edit-opt-D" oninput="updateLiveQuestionData()" class="w-full p-1.5 border border-slate-300 rounded-md text-xs bg-white outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+
+    <!-- ==================== 3. HALAMAN HASIL & PEMBAHASAN ==================== -->
+    <div id="result-page" class="hidden min-h-screen bg-slate-50 p-6 md:p-12">
+        <div class="max-w-4xl w-full mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden" id="printable-area">
+            
+            <div class="bg-gradient-to-r from-blue-700 to-indigo-800 p-8 text-white text-center">
+                <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fa-solid fa-square-poll-vertical"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-1">HASIL UJIAN RESMI</h2>
+                <p class="text-blue-100 text-sm">Laporan Evaluasi Tryout Online Computer Assisted Test</p>
+            </div>
+
+            <div class="p-6 md:p-8 border-b border-slate-100 grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Informasi Peserta</h3>
+                    <table class="w-full text-sm">
+                        <tr class="border-b border-slate-100"><td class="py-2 text-slate-500 w-36">Nama</td><td class="py-2 font-bold text-slate-800" id="res-nama">-</td></tr>
+                        <tr class="border-b border-slate-100"><td class="py-2 text-slate-500">Tanggal Ujian</td><td class="py-2 font-medium text-slate-800" id="res-tanggal">-</td></tr>
+                        <tr><td class="py-2 text-slate-500">Durasi Pengerjaan</td><td class="py-2 font-medium text-slate-800" id="res-durasi">-</td></tr>
+                    </table>
+                </div>
+                <div class="flex flex-col items-center justify-center bg-slate-50 rounded-2xl p-6 border border-slate-200">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">NILAI AKHIR</div>
+                    <div class="text-5xl font-extrabold text-blue-600" id="res-nilai">00.0</div>
+                </div>
+            </div>
+
+            <div class="p-6 md:p-8 bg-slate-50/50 border-b border-slate-100 grid grid-cols-3 gap-4 text-center">
+                <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-green-600 text-xl mb-1"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="text-2xl font-bold text-slate-800" id="res-benar">0</div>
+                    <div class="text-xs font-medium text-slate-400">Jawaban Benar</div>
+                </div>
+                <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-red-500 text-xl mb-1"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <div class="text-2xl font-bold text-slate-800" id="res-salah">0</div>
+                    <div class="text-xs font-medium text-slate-400">Jawaban Salah</div>
+                </div>
+                <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-slate-400 text-xl mb-1"><i class="fa-solid fa-circle-minus"></i></div>
+                    <div class="text-2xl font-bold text-slate-800" id="res-kosong">0</div>
+                    <div class="text-xs font-medium text-slate-400">Tidak Dijawab</div>
+                </div>
+            </div>
+
+            <div class="p-6 bg-white border-b border-slate-100 flex flex-wrap gap-3 justify-center no-print">
+                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm text-sm">
+                    <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+                </button>
+                <button onclick="downloadJsonReport()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm text-sm">
+                    <i class="fa-solid fa-download"></i> Unduh Rekap Data (JSON)
+                </button>
+                <button onclick="restartApp()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl transition flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-rotate-left"></i> Mulai Ulang Aplikasi
+                </button>
+            </div>
+
+            <div class="p-6 md:p-8">
+                <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-blue-600"></i> Analisis & Review Pembahasan
+                </h3>
+                <div id="review-container" class="space-y-6"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // =========================================================================
+        // DATA BASE BANK SOAL TERINTEGRASI (SINKRON 100 BUTIR SOAL MATERI HUKUM PIDANA)
+        // =========================================================================
+        let questions = [
+            {
+                text: "Mengapa aturan hukum pidana harus tertulis dan ada terlebih dahulu sebelum suatu perbuatan dilakukan?",
+                options: {
+                    A: "Untuk mempermudah tugas hakim dalam membuat hukum baru di pengadilan.",
+                    B: "Untuk menjamin kepastian hukum, fungsi pencegahan, dan membatasi kekuasaan aparat.",
+                    C: "Agar negara dapat menghukum seseorang secara retroaktif (berlaku surut) demi keadilan.",
+                    D: "Agar hukum dapat berubah-ubah dengan cepat sesuai dengan selera penguasa."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Mengapa penerapan \"hukum yang hidup dalam masyarakat\" (hukum adat) menurut UU No. 1 Tahun 2023 tetap harus memenuhi syarat lex certa (melalui Perda)?",
+                options: {
+                    A: "Agar hukum adat tersebut dapat menggantikan seluruh pasal yang ada di dalam KUHP Nasional.",
+                    B: "Untuk memastikan masyarakat memiliki panduan tertulis yang jelas, sehingga hak-hak mereka tidak dilanggar secara sewenang-wenang.",
+                    C: "Supaya aparat penegak hukum memiliki kebebasan subjektif dalam menentukan batas pelanggaran.",
+                    D: "Demi menghapus asas non-retroaktif yang diatur dalam konstitusi dan UDHR."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Mengapa asas non-retroaktif (hukum tidak berlaku surut) dikategorikan sebagai non-derogable rights (hak yang tidak dapat dikurangi) menurut UUD 1945?",
+                options: {
+                    A: "Karena aturan tertulis sebelum perbuatan memastikan hak mutlak ini terpenuhi berdasarkan Pasal 28I ayat (1).",
+                    B: "Karena penerapannya hanya berlaku untuk kasus hukum internasional sesuai Pasal 11 UDHR.",
+                    C: "Karena hakim memiliki wewenang penuh untuk menyimpangi aturan demi keadilan substantif.",
+                    D: "Karena hak tersebut dapat dibatasi jika negara dalam keadaan darurat atau bahaya nasional."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Based on Pasal 2 ayat (1) UU No. 1 Tahun 2023, apa yang diakui sebagai pengecualian dari asas legalitas formal dalam hal dasar pemidanaan? (Soal Tambahan: Sebutkan Syarat Kumulatif Hukum Adat (Living Law) Dapat Menjadi Dasar Pemidanaan)",
+                options: {
+                    A: "Hukum tertulis internasional",
+                    B: "Living Law (Hukum yang Hidup dalam Masyarakat/Hukum Adat)",
+                    C: "Keputusan bersama menteri",
+                    D: "Hukum pidana negara asing"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Hak asasi manusia yang tidak dapat dikurangi dalam keadaan apa pun, seperti hak untuk tidak dituntut berdasarkan hukum yang berlaku surut, diatur dalam Pasal 28I ayat (1) UUD 1945 dan dikenal sebagai...",
+                options: {
+                    A: "Derogable Rights",
+                    B: "Non-Derogable Rights",
+                    C: "Political Rights",
+                    D: "Social Rights"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Asas hukum yang menyatakan bahwa seseorang tidak dapat dijatuhi hukuman pidana jika tidak ada unsur kekosongan jiwa, kesengajaan, atau kelalaian pada dirinya adalah...",
+                options: {
+                    A: "Asas Legalitas",
+                    B: "Geen straf zonder schuld",
+                    C: "Lex superior derogat legi inferiori",
+                    D: "Presumption of innocence"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Jika dalam persidangan terbukti bahwa salah satu unsur (baik subjektif maupun objektif) dari pasal yang didakwakan tidak terpenuhi, tindakan apa yang wajib diambil oleh hakim dalam pertimbangan hukumnya?",
+                options: {
+                    A: "Tetap menjatuhkan pidana karena mayoritas unsur tindak pidana sudah terpenuhi.",
+                    B: "Menjatuhkan putusan bebas (vrijspraak) atau lepas (onslag) karena seluruh unsur wajib terpenuhi secara kumulatif.",
+                    C: "Menunda putusan sampai jaksa penuntut umum berhasil melengkapi unsur yang kurang.",
+                    D: "Mengalihkan dakwaan ke pasal lain secara sepihak tanpa memedulikan surat dakwaan awal."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Jika dalam suatu persidangan pidana terbukti bahwa unsur objektif (perbuatan melawan hukum yang menimbulkan akibat) tidak terpenuhi, maka putusan yang dijatuhkan oleh hakim adalah...",
+                options: {
+                    A: "Putusan Lepas (Ontslag van alle rechtsvervolging)",
+                    B: "Putusan Bebas (Vrijspraak)",
+                    C: "Putusan Pemidanaan (Veroordeling)",
+                    D: "Putusan Tidak Dapat Diterima (Niet Ontvankelijk Verklaard)"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Seorang terdakwa didakwa melakukan pembunuhan. Namun, hasil visum membuktikan bahwa korban meninggal murni karena serangan jantung dan tidak ada perbuatan merampas nyawa dari terdakwa. Berdasarkan Pasal 191 ayat (1) KUHAP, amar putusan apa yang wajib dijatuhkan oleh hakim?",
+                options: {
+                    A: "Putusan Lepas dari Segala Tuntutan Hukum (Onslag van Alle Rechtsvervolging)",
+                    B: "Putusan Bebas (Vrijspraak)",
+                    C: "Putusan Pemidanaan",
+                    D: "Putusan Tidak Dapat Diterima (Niet Ontvankelijke Verklaard)"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam suatu persidangan, terdakwa terbukti secara fisik melakukan pengrusakan barang milik orang lain. Namun, berdasarkan pemeriksaan medis, terdakwa diketahui mengidap gangguan jiwa berat (skizofrenia) saat kejadian, sehingga tidak memiliki sikap batin yang jahat (mens rea). Berdasarkan Pasal 191 ayat (2) KUHAP, jenis putusan apa yang harus dijatuhkan oleh hakim?",
+                options: {
+                    A: "Putusan Bebas (Vrijspraak)",
+                    B: "Putusan Lepas dari Segala Tuntutan Hukum (Onslag van alle rechtsvervolging)",
+                    C: "Putusan Pemidanaan (Penjara)",
+                    D: "Putusan Tidak Menerima Tuntutan (Niet Ontvankelijk Verklaard)"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Jika dalam suatu persidangan Hakim menemukan bahwa perbuatan pidana secara nyata terjadi (objektif terpenuhi), namun pelaku melakukannya di bawah paksaan atau karena gangguan jiwa (subjektif tidak terpenuhi), maka putusan yang tepat bagi pelaku adalah...",
+                options: {
+                    A: "Dipidana penjara karena perbuatannya terbukti ada.",
+                    B: "Tidak bisa dipidana karena tidak memiliki kesalahan secara subjektif.",
+                    C: "Tetap dipidana tetapi hukumannya dikurangi setengah.",
+                    D: "Dinyatakan bersalah karena unsur objektif sudah terpenuhi."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Asas Cogitationis poenam nemo patitur mengadopsi prinsip hukum bahwa...",
+                options: {
+                    A: "Seseorang hanya bisa dihukum jika ada aturan tertulis yang mengaturnya.",
+                    B: "Tidak ada seorang pun yang dapat dipidana karena apa yang dipikirkannya atau karena niatnya semata.",
+                    C: "Hukum harus ditegakkan demi keadilan bagi seluruh masyarakat tanpa tebang pilih.",
+                    D: "Every person dianggap tidak bersalah sebelum ada putusan pengadilan yang berkekuatan hukum tetap."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Jika seseorang memiliki niat jahat yang sangat besar untuk melakukan kejahatan, namun ia sama sekali tidak mewujudkannya dalam tindakan fisik atau perbuatan nyata yang melawan hukum, bagaimanakah statusnya dalam hukum pidana?",
+                options: {
+                    A: "Orang tersebut dapat dipidana karena niatnya sudah sangat membahayakan.",
+                    B: "Hukum pidana tidak dapat menyentuh orang tersebut karena tidak ada perbuatan nyata.",
+                    C: "Orang tersebut tetap dikenai sanksi pidana percobaan (poging).",
+                    D: "Hakim akan memberikan hukuman moral berupa kerja sosial."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Andi berniat mencuri sebuah sepeda karena mengira sepeda itu milik tetangganya. Namun, setelah ia mengambilnya, baru disadari bahwa sepeda tersebut ternyata adalah miliknya sendiri yang sempat hilang. Berdasarkan asas hukum pidana, apa putusan yang harus dijatuhkan oleh hakim?",
+                options: {
+                    A: "Putusan pemidanaan, karena Andi sudah memiliki niat jahat (unsur subjektif terpenuhi).",
+                    B: "Putusan lepas dari segala tuntutan hukum (onslag van rechtsvervolg), karena perbuatannya bukan merupakan tindak pidana.",
+                    C: "Putusan bebas (vrijspraak), karena unsur objektif \"milik orang lain\" tidak terpenuhi sehingga dakwaan tidak terbukti.",
+                    D: "Putusan skorsing sidang, sampai ditemukan pemilik asli sepeda tersebut."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Menurut Pasal 53 KUHP, sebuah tindakan baru dapat dipidana sebagai percobaan tindak pidana jika niat pelaku sudah mewujud dalam bentuk...",
+                options: {
+                    A: "Rencana matang yang tertulis",
+                    B: "Permulaan pelaksanaan (begin van uitvoering)",
+                    C: "Kesepakatan rahasia dengan orang lain",
+                    D: "Hasil akhir dari tindak pidana pokok"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Unsur dalam tindak pidana yang berkaitan dengan sikap batin dan mental pelaku untuk menentukan ada tidaknya kesalahan (mens rea) disebut dengan unsur… (SOAL TAMBAHAN: Sebutkan Unsur-Unsur Subjektif Hukum Pidana)",
+                options: {
+                    A: "Objektif",
+                    B: "Subjektif",
+                    C: "Formil",
+                    D: "Materil"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Jika dalam persidangan terbukti bahwa unsur tindak pidana—baik unsur objektif maupun unsur subjektif yang terdapat dalam pasal—tidak terpenuhi, maka putusan yang harus dijatuhkan oleh majelis hakim adalah...",
+                options: {
+                    A: "Putusan lepas dari segala tuntutan hukum (ontslag van alle rechtsvervolging)",
+                    B: "Putusan pemidanaan (veroordeling)",
+                    C: "Putusan bebas (vrijspraak)",
+                    D: "Putusan tidak dapat diterima (niet ontvankelijk verklaard)"
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Jika seorang pelaku terbukti secara objektif dan subjektif telah memenuhi seluruh unsur dalam pasal pidana, namun ia memiliki Alasan Pemaaf (seperti gangguan jiwa atau daya paksa) sehingga kesalahannya dihapus, maka putusan hakim yang dijatuhkan adalah...",
+                options: {
+                    A: "Putusan Bebas (Vrijspraak)",
+                    B: "Lepas dari segala tuntutan hukum (Ontslag van alle rechtsvervolging)",
+                    C: "Putusan Pemidanaan (Veroordeling)",
+                    D: "Tuntutan tidak dapat diterima (Niet ontvankelijk verklaard)"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Sisi lahiriah dari suatu perbuatan pidana (dilakukan oleh pelaku serta keadaan-keadaan di luar diri pelaku) yang meliputi perbuatan materiel, akibat yang dilarang, dan keadaan yang menyertai perbuatan tersebut dinamakan...",
+                options: {
+                    A: "Unsur Subjektif",
+                    B: "Unsur Objektif",
+                    C: "Unsur Melawan Hukum",
+                    D: "Unsur Pertanggungjawaban"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam hukum pidana, dikenal adanya alasan penghapus pidana yang dibagi menjadi alasan pembenar (rechtvaardigingsgrond) dan alasan pemaaf (schuldentschuldigingsgrond). Manakah pernyataan berikut yang secara tepat mendefinisikan karakteristik dan esensi dari alasan pembenar?",
+                options: {
+                    A: "Alasan yang menghapuskan kesalahan terdakwa karena adanya faktor psikologis, di mana sifat perbuatannya tetap melanggar hukum namun pelakunya tidak dapat dipidana karena alasan subjektif.",
+                    B: "Alasan yang menghapuskan sifat melawan hukumnya perbuatan (perbuatan yang dilakukan dianggap benar/dibenarkan oleh hukum), di mana alasan ini bersifat objektif dan melekat pada perbuatannya.",
+                    C: "Alasan yang memberikan pengampunan hukum secara khusus dari presiden kepada terpidana setelah adanya putusan pengadilan yang berkekuatan hukum tetap (inkracht).",
+                    D: "Alasan yang meniadakan tuntutan jaksa penuntut umum karena perkara tersebut telah kedaluwarsa menurut ketentuan undang-undang yang berlaku."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam hukum pidana terkait kasus penyalahgunaan narkotika, seorang pecandu atau pengguna secara objektif telah memenuhi unsur perbuatan (mengonsumsi/memiliki untuk diri sendiri) dan secara subjektif memiliki unsur kesengajaan (tahu dan mau). Namun, mengapa hakim diberikan wewenang untuk menjatuhkan putusan berupa tindakan rehabilitasi medis dan sosial alih-alih hukuman penjara?",
+                options: {
+                    A: "Karena unsur subjektif (kesengajaan) dalam diri pengguna dianggap gugur secara otomatis akibat adanya daya paksa (overmacht) dari efek ketergantungan zat adiktif.",
+                    B: "Karena secara objektif perbuatan mengonsumsi narkoba untuk diri sendiri bukan merupakan suatu tindak pidana, melainkan murni pelanggaran administrasi kesehatan.",
+                    C: "Karena undang-undang memandang pecandu sebagai korban yang sakit secara medis, sehingga hukum pidana bergeser dari sekadar menghukum menjadi memulihkan melalui wajib rehabilitasi.",
+                    D: "Karena wewenang hakim untuk merehabilitasi hanya berlaku jika pengguna terbukti tidak mengetahui atau tidak menghendaki sama sekali bahwa barang yang dikonsumsinya adalah narkotika."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Di dalam Kitab Undang-Undang Hukum Pidana (KUHP) yang baru, terdapat ketentuan mengenai alasan pembenar (rechtvaardigingsgrond) di mana seseorang yang melakukan suatu perbuatan yang dilarang tidak dapat dijatuhi pidana. Manakah pasal yang secara tegas mengatur bahwa perbuatan yang dilarang tersebut tidak dipidana jika dilakukan khusus untuk tujuan \"melaksanakan ketentuan peraturan perundang-undangan\"?",
+                options: {
+                    A: "Pasal 22 UU No. 1 Tahun 2023",
+                    B: "Pasal 31 UU No. 1 Tahun 2023",
+                    C: "Pasal 40 UU No. 1 Tahun 2023",
+                    D: "Pasal 51 UU No. 1 Tahun 2023"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam Kitab Undang-Undang Hukum Pidana (KUHP) yang baru, perbuatan pidana yang dilakukan karena melaksanakan perintah jabatan dari pejabat yang berwenang merupakan salah satu alasan penghapus pidana (alasan pembenar). Ketentuan mengenai hal ini diatur dalam...",
+                options: {
+                    A: "Pasal 31 UU Nomor 1 Tahun 2023",
+                    B: "Pasal 32 UU Nomor 1 Tahun 2023",
+                    C: "Pasal 40 UU Nomor 1 Tahun 2023",
+                    D: "Pasal 51 UU Nomor 1 Tahun 2023"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Seorang pengemudi terpaksa menerobos lampu merah dan melaju di trotoar demi membawa seorang korban kecelakaan parah yang kritis ke rumah sakit terdekat agar nyawanya terselamatkan. Tindakan melanggar aturan lalu lintas tersebut dilakukan karena adanya kepentingan hukum yang lebih mendesak untuk dilindungi (keadaan darurat). Di dalam Kitab Undang-Undang Hukum Pidana (KUHP) nasional yang baru, ketentuan yang mengatur bahwa seseorang yang melakukan perbuatan yang dilarang tidak dapat dipidana karena alasan keadaan darurat tersebut diatur dalam...",
+                options: {
+                    A: "Pasal 32 UU No. 1 Tahun 2023",
+                    B: "Pasal 33 UU No. 1 Tahun 2023",
+                    B: "Pasal 34 UU No. 1 Tahun 2023",
+                    D: "Pasal 35 UU No. 1 Tahun 2023"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Setiap orang yang terpaksa melakukan perbuatan pidana karena pembelaan yang mutlak diperlukan untuk diri sendiri atau orang lain, kehormatan dalam arti kesusilaan, atau harta benda milik sendiri atau orang lain dari ancaman serangan seketika yang melawan hukum, tidak dipidana karena alasan pembenar. Ketentuan mengenai pembelaan terpaksa (noodweer) ini dalam Kitab Undang-Undang Hukum Pidana nasional yang baru diatur dalam...",
+                options: {
+                    A: "Pasal 32 UU No. 1 Tahun 2023",
+                    B: "Pasal 33 UU No. 1 Tahun 2023",
+                    C: "Pasal 34 UU No. 1 Tahun 2023",
+                    D: "Pasal 35 UU No. 1 Tahun 2023"
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Dalam Kitab Undang-Undang Hukum Pidana (KUHP) yang baru, terdapat ketentuan mengenai alasan penghapus pidana yang diadopsi dari ajaran sifat melawan hukum materiil fungsi negatif. Melalui ketentuan ini, hakim dapat menyatakan seseorang tidak dipidana jika perbuatannya dianggap tidak tercela dan tidak melukai nilai keadilan dalam masyarakat, meskipun secara tekstual perbuatan tersebut telah memenuhi rumusan delik dalam undang-undang. Ketentuan yang mengatur tentang ketiadaan sifat melawan hukum berdasarkan penilaian hakim terhadap nilai keadilan masyarakat tersebut diatur dalam...",
+                options: {
+                    A: "Pasal 2 ayat (1) UU No. 1 Tahun 2023",
+                    B: "Pasal 12 ayat (2) UU No. 1 Tahun 2023",
+                    C: "Pasal 35 UU No. 1 Tahun 2023",
+                    D: "Pasal 51 ayat (1) UU No. 1 Tahun 2023"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam hukum pidana, terdapat alasan-alasan yang dapat membebaskan seorang pelaku dari jerat hukum. Di antaranya terdapat alasan yang menghapuskan unsur kesalahan pelaku tindak pidana—di mana perbuatannya tetap dinyatakan sebagai sesuatu yang dilarang dan melawan hukum, tetapi pelakunya tidak dapat dimintai pertanggungjawaban karena alasan tersebut bersifat subjektif (melekat pada kondisi batin atau pribadi orangnya). Konsep ini dalam hukum pidana dikenal dengan istilah...",
+                options: {
+                    A: "Alasan Pembenar (Rechtvaardigingsgrond)",
+                    B: "Alasan Pemaaf (Schuldentsculdigingsgrond)",
+                    C: "Alasan Penghapus Penuntutan",
+                    D: "Alasan Pemberat Pidana"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Di dalam Kitab Undang-Undang Hukum Pidana (KUHP) yang baru, terdapat batas usia minimum di mana seorang anak belum dapat dimintai pertanggungjawaban pidana di sidang pengadilan. Manakah pasal dalam UU No. 1 Tahun 2023 yang mengatur bahwa jika pelaku tindak pidana merupakan anak yang belum berumur 12 (dua belas) tahun, maka terhadap anak tersebut tidak dapat dijatuhi pidana melainkan hanya dapat dikenai tindakan?",
+                options: {
+                    A: "Pasal 38 UU 1/2023",
+                    B: "Pasal 39 UU 1/2023",
+                    C: "Pasal 40 UU 1/2023",
+                    D: "Pasal 41 UU 1/2023"
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Seorang pelaku tindak pidana tidak dapat dijatuhi hukuman pidana apabila ia terbukti melakukan perbuatan tersebut karena adanya daya paksa (overmacht), baik berupa tekanan, ancaman, maupun kekuatan yang menurut akal sehat tidak dapat ditahan atau dihindari. Di dalam Kitab Undang-Undang Hukum Pidana (KUHP) Nasional yang baru, ketentuan mengenai penghapusan pidana akibat daya paksa ini diatur dalam...",
+                options: {
+                    A: "Pasal 34 UU 1/2023",
+                    B: "Pasal 40 UU 1/2023",
+                    C: "Pasal 42 UU 1/2023",
+                    D: "Pasal 48 UU 1/2023"
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Setiap orang yang melakukan pembelaan terpaksa yang melampaui batas (noodweer exces), yang langsung disebabkan oleh guncangan jiwa yang hebat karena adanya serangan atau ancaman serangan seketika yang melawan hukum, tidak dapat dipidana. Ketentuan mengenai alasan pemaaf ini diatur dalam KUHP Nasional (Baru), yaitu pada...",
+                options: {
+                    A: "Pasal 34 UU No. 1 Tahun 2023",
+                    B: "Pasal 40 UU No. 1 Tahun 2023",
+                    C: "Pasal 43 UU No. 1 Tahun 2023",
+                    D: "Pasal 48 UU No. 1 Tahun 2023"
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Seorang aparatur sipil negara melaksanakan sebuah perintah jabatan yang ternyata diberikan oleh atasan yang tidak memiliki wewenang untuk itu. Namun, aparatur tersebut melaksanakannya dengan iktikad baik karena mengira perintah tersebut sah dan isi perintahnya masih termasuk dalam lingkup pekerjaannya. Dalam Kitab Undang-Undang Hukum Pidana (KUHP) yang baru, alasan pemaaf mengenai pelaksanaan perintah jabatan tanpa wewenang dengan iktikad baik ini diatur dalam...",
+                options: {
+                    A: "Pasal 33 UU No. 1 Tahun 2023",
+                    B: "Pasal 40 UU No. 1 Tahun 2023",
+                    C: "Pasal 44 UU No. 1 Tahun 2023",
+                    D: "Pasal 51 UU No. 1 Tahun 2023"
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Berdasarkan ketentuan hukum yang berlaku, bagaimanakah status hukum seorang terpidana yang dijatuhi sanksi pidana pengawasan selama menjalani masa hukumannya?",
+                options: {
+                    A: "Berstatus sebagai tahanan kota yang dilarang meninggalkan rumah tanpa izin tertulis dari kejaksaan.",
+                    B: "Berstatus sebagai narapidana yang wajib mendekam di dalam Lembaga Pemasyarakatan (Lapas).",
+                    C: "Berstatus sebagai terpidana yang menjalani pidana di luar penjara di bawah kategori pidana pembatasan kemerdekaan.",
+                    D: "Berstatus sebagai warga negara bebas sepenuhnya karena status hukumnya telah dipulihkan secara otomatis oleh hakim."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Siapakah pihak yang secara hukum berwenang untuk melakukan pengawasan dan bimbingan kemasyarakatan terhadap terpidana selama masa pidana pengawasan berjalan?",
+                options: {
+                    A: "Berada di bawah pengawasan Jaksa dan mendapatkan pembimbingan oleh Petugas Kemasyarakatan (Bapas).",
+                    B: "Berada di bawah pengawasan langsung oleh Majelis Hakim Tinggi dan dibimbing oleh Lembaga Swadaya Masyarakat.",
+                    C: "Berada di bawah pengawasan pihak Kepolisian Sektor (Polsek) setempat dan dibimbing oleh Kepala Desa.",
+                    D: "Berada di bawah pengawasan Kepala Lapas dan mendapatkan pembimbingan dari sipir penjara secara berkala."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Berdasarkan Pasal 76 UU Nomor 1 Tahun 2023, berapakah jangka waktu maksimal (paling lama) yang dapat dijatuhkan oleh hakim untuk pidana pengawasan?",
+                options: {
+                    A: "Paling lama 1 (satu) tahun.",
+                    B: "Paling lama 2 (dua) tahun.",
+                    C: "Paling lama 3 (tiga) tahun.",
+                    D: "Paling lama 5 (lima) tahun."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Berdasarkan ketentuan Pasal 75 Kitab Undang-Undang Hukum Pidana (UU Nomor 1 Tahun 2023), seorang terdakwa dapat dijatuhi pidana pengawasan apabila tindak pidana yang dilakukannya memenuhi syarat objektif tertentu. Manakah pernyataan yang paling tepat mengenai batas ancaman pidana dan batas maksimal penjatuhan pidana pengawasan tersebut?",
+                options: {
+                    A: "Tindak pidana diancam dengan pidana penjara di bawah 3 (tiga) tahun, dan hakim menjatuhkan pidana pengawasan paling lama 2 (dua) tahun.",
+                    B: "Tindak pidana diancam dengan pidana penjara paling lama 5 (lima) tahun, dan hakim dapat menjatuhkan pidana pengawasan paling lama 3 (tiga) tahun.",
+                    C: "Tindak pidana diancam dengan pidana penjara di bawah 5 (lima) tahun, dan hakim akan menjatuhkan pidana penjara paling lama 3 (tiga) tahun.",
+                    D: "Tindak pidana diancam dengan pidana kurungan di bawah 5 (lima) tahun, dan hakim menjatuhkan pidana pengawasan paling lama 5 (lima) tahun."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Menurut Pasal 75 ayat (1), hakim diwajibkan untuk memperhatikan aspek subjektif tertentu sebelum menjatuhkan putusan terhadap terdakwa. Manakah di antara pilihan berikut yang bukan merupakan salah satu syarat subjektif (pertimbangan hakim) berdasarkan pasal tersebut?",
+                options: {
+                    A: "Karakteristik dan keadaan pribadi terdakwa serta kemungkinan perbaikan diri terdakwa (potensi rehabilitasi).",
+                    B: "Tingkat keseriusan tindak pidana serta corak dan sifat tindak pidana yang dilakukan.",
+                    C: "Nilai kerugian materiil korban yang harus diganti rugi secara tunai oleh terdakwa.",
+                    D: "Potensi rehabilitasi diri terdakwa di masa depan serta sifat dari tindak pidana tersebut."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Peraturan perundang-undangan manakah yang mengatur mengenai pedoman pemidanaan yang wajib dipertimbangkan oleh hakim sebelum menjatuhkan pidana? (Soal Tambahan: Sebutkan Pedoman Pemidanaan)",
+                options: {
+                    A: "Pasal 54 ayat (1) UU No. 1 Tahun 2023",
+                    B: "Pasal 54 ayat (1) UU No. 8 Tahun 1981",
+                    C: "Pasal 54 ayat (1) UU No. 48 Tahun 2009",
+                    D: "Pasal 54 ayat (1) UU No. 20 Tahun 2001"
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Kewenangan hakim untuk tidak menjatuhkan pidana atau mengenakan tindakan kepada pelaku meskipun perbuatannya terbukti (Pemaafan Hakim/Judicial Pardon) diatur dalam...",
+                options: {
+                    A: "Pasal 54 ayat (1) UU No. 1 Tahun 2023",
+                    B: "Pasal 54 ayat (2) UU No. 1 Tahun 2023",
+                    C: "Pasal 55 ayat (1) UU No. 1 Tahun 2023",
+                    D: "Pasal 55 ayat (2) UU No. 1 Tahun 2023"
+                },
+                correctAnswer: "D"
+            },
+            {
+                text: "Apa yang menjadi Syarat Umum bagi terpidana Pidana Pengawasan?",
+                options: {
+                    A: "Mengikuti pelatihan kerja atau rehabilitasi",
+                    B: "Tidak akan melakukan tindak pidana lagi",
+                    C: "Dilarang meninggalkan wilayah tertentu",
+                    D: "Wajib melapor secara rutin"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Manakah pernyataan yang benar mengenai Syarat Khusus dalam Pidana Pengawasan?",
+                options: {
+                    A: "Wajib melapor dan tidak boleh bertentangan dengan agama/keyakinan terpidana",
+                    B: "Keharusan untuk tidak melakukan tindak pidana apa pun lagi di masa depan",
+                    C: "Boleh memperbudak terpidana asalkan demi kepentingan rehabilitasi kerja",
+                    D: "Berlaku mutlak tanpa ada batasan hak asasi atau kebebasan beragama"
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Apabila seorang terpidana terbukti melanggar syarat umum atau syarat khusus selama masa pengawasan, tindakan hukum oleh Hakim dijatuhkan berdasarkan usul dari pihak tertentu. Berdasarkan Pasal 77 UU 1/2023, bagaimanakah alur pengusulan tindakan hukum tersebut?",
+                options: {
+                    A: "Pembimbing Kemasyarakatan langsung mengusulkan kepada Hakim setelah mendapat laporan dari Jaksa.",
+                    B: "Jaksa langsung mengusulkan kepada Hakim tanpa memerlukan laporan dari lembaga lain.",
+                    C: "Hakim mengambil keputusan secara mandiri (ex-officio) tanpa memerlukan usulan dari Jaksa maupun Pembimbing Kemasyarakatan.",
+                    D: "Hakim atas usul Jaksa setelah Jaksa mendapat laporan dari Pembimbing Kemasyarakatan."
+                },
+                correctAnswer: "D"
+            },
+            {
+                text: "Salah satu tindakan hukum yang dapat diambil oleh Hakim ketika terpidana melanggar syarat pengawasan adalah memperpanjang masa pengawasan tersebut. Batasan maksimal perpanjangan masa pengawasan yang diatur dalam Pasal 77 UU 1/2023 adalah...",
+                options: {
+                    A: "Tidak boleh melampaui 2 (dua) kali masa pengawasan yang belum dijalani.",
+                    B: "Tidak boleh melampaui seluruh total masa pengawasan yang sudah dijalani sejak awal.",
+                    C: "Maksimal diperpanjang selama 1 (satu) tahun tanpa melihat sisa masa pengawasan.",
+                    D: "Sama dengan sisa masa pidana penjara pokok yang sedianya akan dijatuhkan."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Manakah di bawah ini yang merupakan variasi tindakan hukum yang dapat diambil oleh Hakim apabila terpidana terbukti melanggar syarat umum atau syarat khusus selama masa pengawasan menurut UU 1/2023?",
+                options: {
+                    A: "Pemberian peringatan, perpanjangan masa pengawasan, atau penggantian pidana penjara.",
+                    B: "Pemberian hukuman denda tambahan, kerja sosial, atau kurungan badan seketika.",
+                    C: "Pencabutan hak politik, perpanjangan masa pengawasan, atau denda materiil.",
+                    D: "Pengurangan masa pidana, pemberian peringatan tertulis, atau pengalihan menjadi pidana denda."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Jika Hakim mengambil tindakan paling fatal berupa memerintahkan terpidana menjalani pidana penjara semula, maka sisa pidana penjara tersebut harus dikurangi dengan masa pengawasan yang telah dijalani. Bagaimanakah formulasi konversi pengurangan yang berlaku menurut Pasal 77 UU 1/2023?",
+                options: {
+                    A: "1 (satu) hari masa pengawasan dihitung setara dengan 1 (satu) hari masa pidana penjara.",
+                    B: "2 (dua) hari masa pengawasan dihitung setara dengan 1 (satu) hari masa pidana penjara.",
+                    C: "1 (satu) hari masa pengawasan dihitung setara dengan 2 (dua) hari masa pidana penjara.",
+                    D: "3 (tiga) hari masa pengawasan dihitung setara dengan 1 (satu) hari masa pidana penjara."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Budi dijatuhi vonis hukuman pidana penjara selama 1 tahun (360 hari). Hakim menetapkan hukuman tersebut dijalani dalam bentuk Pidana Pengawasan selama 2 tahun (720 hari) dengan syarat khusus wajib lapor dan larangan ke luar kota tanpa izin. Setelah menjalani masa pengawasan dengan tertib selama 300 hari, Budi tertangkap basah melanggar syarat khusus pada hari ke-301 karena pergi ke luar kota tanpa izin. Akibatnya, Jaksa mengeksekusi Budi untuk masuk ke dalam Lembaga Pemasyarakatan (Lapas). Berdasarkan rumus konversi di mana 2 hari masa pengawasan setara dengan 1 hari pidana penjara, berapakah sisa hukuman pidana penjara yang masih harus dijalani oleh Budi di dalam Lapas?",
+                options: {
+                    A: "360 hari",
+                    B: "210 hari",
+                    C: "150 hari",
+                    D: "60 hari"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam sistem hukum pidana di Indonesia, terdapat jenis pidana khusus bernama \"pidana tutupan\". Berdasarkan ketentuan hukum yang berlaku, manakah kondisi atau parameter utama yang melandasi hakim untuk menjatuhkan jenis pidana ini kepada seorang pelaku kejahatan?",
+                options: {
+                    A: "Kejahatan dilakukan karena kelalaian (culpa) yang sangat berat dan menimbulkan kerugian materiil bagi negara dalam jumlah besar.",
+                    B: "Tindak pidana yang dilakukan didorong oleh motif yang didasari atas maksud yang suci, cita-cita yang tinggi, atau alasan ideologis/politik yang tidak bermaksud jahat secara kriminal (evil mind).",
+                    C: "Pelaku tindak pidana menderita gangguan jiwa ringan yang membuatnya tidak mampu bertanggung jawab penuh secara hukum atas tindakannya.",
+                    D: "Pelaku kejahatan masih berada di bawah umur dan melakukan tindak pidana karena adanya paksaan atau ancaman dari pihak lain (overmacht)."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Pidana tutupan umumnya dibatasi untuk tindak pidana tertentu yang bersifat konteksual atau politik. Bentuk kejahatan terhadap keamanan negara seperti apa yang memenuhi syarat untuk dijatuhi pidana tutupan?",
+                options: {
+                    A: "Aksi terorisme destruktif yang meledakkan fasilitas umum di berbagai kota.",
+                    B: "Makar yang didasari oleh pergolakan ideologis, bukan aksi terorisme destruktif.",
+                    C: "Sabotase infrastruktur militer yang didanai oleh jaringan kriminal transnasional demi keuntungan finansial.",
+                    D: "Pembunuhan berencana terhadap kepala negara yang didorong oleh dendam pribadi pelaku."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Penyiaran berita bohong yang memicu keonaran dapat dijatuhi pidana tutupan apabila tindakan tersebut dilakukan dengan motif...",
+                options: {
+                    A: "Politik demi \"memperbaiki negara\" menurut versi pelaku.",
+                    B: "Menjatuhkan harga saham kompetitor bisnis agar pelaku mendapatkan keuntungan komersial.",
+                    C: "Iseng dan sekadar mencari popularitas (panjat sosial) di media sosial.",
+                    D: "Mengalihkan perhatian publik dari kasus kejahatan konvensional yang sedang diselidiki polisi."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Manakah di bawah ini yang menjadi karakteristik utama dari pelaku tindak pidana yang dapat dijatuhi hukuman berupa pidana tutupan?",
+                options: {
+                    A: "Pelaku bertindak karena didorong oleh keserakahan (greed) untuk memperkaya diri sendiri.",
+                    B: "Pelaku merupakan seorang ideologue yang berjuang demi ide atau motif politik tertentu, bukan karena kekejaman.",
+                    C: "Pelaku melakukan tindakan kriminal yang didasari oleh motif ekonomi murni.",
+                    D: "Pelaku terbukti melakukan kekejaman (cruelty) yang menimbulkan korban jiwa massal secara acak."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Pidana tutupan memiliki karakteristik eksekusi yang sering disebut sebagai \"penjara dengan penghormatan.\" Manakah di antara pernyataan berikut yang merupakan perbedaan mendasar antara perlakuan terhadap terpidana di Rumah Tutupan dengan narapidana di penjara biasa?",
+                options: {
+                    A: "Terpidana tutupan dibebaskan dari pembatasan ruang gerak dan kehilangan kemerdekaan, sementara narapidana biasa wajib dikurung dalam sel.",
+                    B: "Terpidana tutupan mendapatkan akomodasi yang lebih baik, tidak diwajibkan melakukan pekerjaan kasar, dan ditempatkan terpisah dari pelaku kriminal umum demi menjaga kehormatan moral mereka.",
+                    C: "Terpidana tutupan diwajibkan mengikuti program pembinaan kerja paksa yang ketat bersama-sama dengan pelaku tindak pidana korupsi dan pencurian.",
+                    D: "Perbedaan keduanya hanya terletak pada status sosial instansi yang menahannya, sedangkan fasilitas, makanan, dan bauran blok sel dengan kriminal umum tetap disamakan."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam sebuah persidangan kasus perusakan pagar fasilitas tambang swasta oleh aktivis lingkungan, penasihat hukum terdakwa memohon agar majelis hakim menjatuhkan Pidana Tutupan (berdasarkan UU No. 20 Tahun 1946) alih-alih pidana penjara biasa, dengan alasan tindakan tersebut didasari oleh motif ideologis perlindungan lingkungan. Berdasarkan analisis yuridis-historis, mengapa permohonan penerapan Pidana Tutupan tersebut harus ditolak karena adanya kekeliruan kompetensi hukum?",
+                options: {
+                    A: "Karena Pidana Tutupan hanya boleh dijatuhkan jika terdakwa melakukan perusakan fasilitas umum milik pemerintah, bukan milik perusahaan swasta.",
+                    B: "Karena aksi perusakan tersebut merupakan delik pidana umum murni (communia delicta), sedangkan Pidana Tutupan secara khusus hanya diperuntukkan bagi kejahatan politik kenegaraan di mana pelakunya tidak bercela secara moral umum.",
+                    C: "Karena Pidana Tutupan merupakan jenis sanksi hukum yang sudah dihapus dan tidak lagi berlaku dalam sistem hukum pidana positif di Indonesia.",
+                    D: "Karena motif perlindungan lingkungan merupakan alasan pembenar yang dapat membebaskan terdakwa dari segala tuntutan hukum, sehingga pidana tutupan tidak relevan."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam mempertimbangkan berat ringannya hukuman, hakim menilai sikap batin (mens rea) terdakwa yang melakukan tindakan demi membela hak air bersih masyarakat adat. Berdasarkan teks di atas, bagaimana penilaian hakim terhadap aspek mens rea tersebut dan apa dampaknya bagi terdakwa?",
+                options: {
+                    A: "Tindakan terdakwa didorong oleh niat jahat (malice) untuk merugikan pihak investor secara permanen, sehingga menjadi keadaan yang memberatkan hukuman.",
+                    B: "Terdakwa terbukti memiliki motif memperkaya diri sendiri di balik tameng membela masyarakat adat, sehingga tuntutan Jaksa Penuntut Umum (JPU) harus dikabulkan sepenuhnya.",
+                    C: "Sikap batin terdakwa bersifat altruistik dan tidak memiliki niat jahat murni (malice) untuk memperkaya diri, sehingga hal ini menjadi keadaan meringankan yang sangat kuat.",
+                    D: "Ketidakberadaan niat jahat murni (malice) secara otomatis menghapus sifat melawan hukum dari tindak pidana terdakwa, sehingga terdakwa harus dibebaskan dari segala tuntutan."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Bagaimana sikap hakim dalam menyeimbangkan antara kepentingan iklim investasi dengan hak masyarakat adat, serta apa pandangan hakim terhadap tuntutan 1 tahun penjara dari Jaksa Penuntut Umum (JPU)?",
+                options: {
+                    A: "Hakim menolak perlindungan iklim investasi karena pertumbuhan ekonomi daerah dinilai tidak penting jika dibandingkan dengan konflik sosial di lapangan.",
+                    B: "Hakim memandang perlindungan iklim investasi adalah kewajiban negara, namun tidak boleh mengorbankan hak dasar hidup masyarakat adat atas air bersih; oleh karena itu, tuntutan 1 tahun dari JPU dinilai terlalu represif.",
+                    C: "Hakim mendukung penuh tuntutan 1 tahun penjara dari JPU sebagai bentuk kepatuhan terhadap kewajiban negara dalam menjaga iklim investasi dan kepastian hukum bagi investor.",
+                    D: "Tuntutan 1 tahun penjara dari JPU dinilai sudah sangat adil karena telah mempertimbangkan akar konflik sosial dan kepentingan ekonomi daerah secara seimbang."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Apabila putusan pengadilan yang menjatuhkan pidana denda telah memperoleh kekuatan hukum tetap (inkracht van gewijsde), namun terpidana tidak membayar denda tersebut dalam jangka waktu yang ditentukan, Jaksa dapat melakukan penyitaan dan pelelangan terhadap kekayaan atau pendapatan terpidana untuk melunasi denda tersebut. Mekanisme pelaksanaan pidana denda ini diatur dalam...",
+                options: {
+                    A: "Pasal 45 UU Nomor 1 Tahun 2023",
+                    B: "Pasal 67 UU Nomor 1 Tahun 2023",
+                    C: "Pasal 81 UU Nomor 1 Tahun 2023",
+                    D: "Pasal 92 UU Nomor 1 Tahun 2023"
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Berdasarkan Pasal 81 KUHP Baru, bagaimana ketentuan mengenai kewajiban terpidana dalam membayar pidana denda setelah putusan pengadilan berkekuatan hukum tetap (inkracht)?",
+                options: {
+                    A: "Terpidana harus melunasi seluruh denda seketika di persidangan sebelum putusan dibacakan oleh majelis hakim.",
+                    B: "Terpidana wajib membayar denda dalam jangka waktu yang ditentukan, di mana putusan kini membuka ruang bagi terpidana untuk membayar dengan cara mengangsur.",
+                    C: "Terpidana diberikan kebebasan penuh untuk menentukan sendiri kapan dan berapa besaran denda yang ingin dibayarkan tanpa batas waktu.",
+                    D: "Terpidana wajib menyerahkan jaminan aset pribadi kepada pengadilan terlebih dahulu sebelum memilih metode pembayaran denda."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Apabila terpidana lalai atau melewati tenggat waktu yang telah ditentukan dan tidak melunasi denda tersebut, apakah konsekuensi hukum pertama yang akan dihadapi terpidana?",
+                options: {
+                    A: "Jaksa Penuntut Umum selaku eksekutor berwenang langsung menjebloskan terpidana ke dalam penjara tanpa memeriksa asetnya.",
+                    B: "Hakim akan membatalkan putusan sebelumnya dan melakukan persidangan ulang terhadap tindak pidana yang dilakukan.",
+                    C: "Jaksa Penuntut Umum selaku eksekutor berwenang melakukan penyitaan terhadap kekayaan atau pendapatan terpidana untuk dilelang guna melunasi denda.",
+                    D: "Terpidana otomatis dikenakan pidana kerja sosial sebagai pengganti denda yang belum dibayarkan tersebut."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Kapan sisa denda terpidana dapat dikonversikan ke dalam pidana pengganti denda berdasarkan mekanisme Pasal 81 KUHP Baru?",
+                options: {
+                    A: "Sejak hari pertama putusan hakim dibacakan, apabila terpidana langsung menyatakan tidak mampu membayar secara tunai.",
+                    B: "Apabila setelah dilakukan pelacakan dan penyitaan, ternyata kekayaan atau pendapatan terpidana tidak mencukupi untuk melunasi denda.",
+                    C: "Apabila Jaksa Penuntut Umum menolak untuk melakukan penyitaan aset karena proses lelang dianggap terlalu lama.",
+                    D: "Ketika keluarga terpidana menolak untuk ikut menanggung atau membantu melunasi pembayaran denda tersebut."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Seorang terpidana dijatuhi sanksi pidana denda oleh majelis hakim, namun ia tidak mampu membayar denda tersebut dan kekayaannya tidak mencukupi. Berdasarkan Pasal 82 ayat (2) KUHP Baru, berapakah batasan jangka waktu umum untuk pidana penjara pengganti denda tersebut?",
+                options: {
+                    A: "Paling singkat 1 hari dan paling lama 6 bulan",
+                    B: "Paling singkat 1 bulan dan paling lama 1 tahun",
+                    C: "Paling singkat 3 bulan dan paling lama 1 tahun 6 bulan",
+                    D: "Paling singkat 6 bulan dan paling lama 2 tahun"
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Dalam hal terjadi perbarengan tindak pidana (samenloop) atau pengulangan tindak pidana (recidive), pidana penjara pengganti denda dapat diperpanjang dari batas waktu normalnya. Menurut Pasal 82 KUHP Baru, batas maksimal perpanjangan tersebut adalah tidak boleh melebihi...",
+                options: {
+                    A: "1 (satu) tahun",
+                    B: "1 (satu) tahun 6 (enam) bulan",
+                    C: "2 (dua) tahun",
+                    D: "3 (tiga) tahun"
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Bagaimanakah penerapan lamanya pidana penjara pengganti denda apabila terpidana telah membayar sebagian dari total denda yang dijatuhkan kepadanya?",
+                options: {
+                    A: "Masa penjara pengganti tetap berjalan sepenuhnya sesuai putusan awal demi kepastian hukum.",
+                    B: "Masa penjara pengganti dihapuskan seluruhnya karena terpidana sudah menunjukkan iktikad baik.",
+                    C: "Masa penjara pengganti dikurangi secara berimbang (pro rata) sebanding dengan jumlah denda yang telah dibayarkan.",
+                    D: "Masa penjara pengganti diubah menjadi pidana kerja sosial atas persetujuan jaksa penuntut umum."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Berdasarkan ketentuan Pasal 82 ayat (1) KUHP Baru, opsi pidana alternatif sebagai pengganti denda baru dapat disediakan dan dilaksanakan apabila… (SOAL TAMBAHAN: Sebutkan Alternatif Pidana Pengganti Denda sesuai pasal 82 KUHP)",
+                options: {
+                    A: "Terpidana mengajukan permohonan tertulis karena tidak mampu membayar denda.",
+                    B: "Eksekusi harta benda terpidana tidak membuahkan hasil atau tidak mencukupi untuk melunasi denda.",
+                    C: "Terpidana merupakan pelaku tindak pidana ringan dengan ancaman di bawah 1 tahun.",
+                    D: "Jaksa Penuntut Umum gagal menemukan domisili resmi terpidana."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Menurut Pasal 82 ayat (2), (3), dan (4) KUHP Baru, berapakah batas tenggat waktu umum bagi pelaksanaan pidana penjara pengganti denda?",
+                options: {
+                    A: "Paling singkat 1 hari hingga paling lama 6 bulan.",
+                    B: "Paling singkat 1 bulan hingga paling lama 6 bulan.",
+                    C: "Paling singkat 1 bulan hingga paling lama 1 tahun.",
+                    D: "Paling singkat 3 bulan hingga paling lama 2 tahun."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Dalam hal terjadi perbarengan tindak pidana (samenloop) atau pengulangan tindak pidana (recidive), pidana penjara pengganti denda dapat diperpanjang. Namun, KUHP Baru memberikan batas maksimal perpanjangan tersebut yaitu tidak boleh melebihi...",
+                options: {
+                    A: "1 (satu) tahun.",
+                    B: "1 (satu) tahun 6 (enam) bulan.",
+                    C: "2 (dua) tahun.",
+                    D: "3 (tiga) tahun."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Bagaimanakah penerapan ketentuan proporsionalitas jika seorang terpidana telah membayar sebagian dari pidana denda yang dijatuhkan kepadanya?",
+                options: {
+                    A: "Sisa denda yang belum dibayar otomatis diputihkan dan dianggap lunas.",
+                    B: "Masa pidana penjara penggantinya akan dikurangi secara berimbang (pro rata).",
+                    C: "Terpidana tetap harus menjalani masa penjara pengganti secara penuh sesuai putusan awal.",
+                    D: "Hakim akan mengubah sanksi penjara pengganti tersebut menjadi pidana mati."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Jika hakim menetapkan pidana pengawasan sebagai pengganti denda yang tidak dibayar, bagaimanakah status dan keberadaan terpidana dalam menjalani sanksi tersebut?",
+                options: {
+                    A: "Terpidana langsung dimasukkan ke dalam lembaga pemasyarakatan dengan status tahanan kota.",
+                    B: "Terpidana tidak dimasukkan ke dalam penjara, melainkan berada di luar lembaga dengan syarat-syarat tertentu.",
+                    C: "Terpidana wajib mengisolasi diri di rumah dan dilarang melakukan aktivitas sosial apa pun.",
+                    D: "Terpidana dipindahkan ke daerah terpencil yang ditentukan oleh Mahkamah Agung."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Pada pelaksanaan pidana pengawasan pengganti denda, terpidana yang berada di luar lembaga pemasyarakatan akan menjalankan aktivitasnya di bawah pengawasan langsung oleh...",
+                options: {
+                    A: "Penyidik Kepolisian dan Kepala Desa setempat.",
+                    B: "Hakim Pengawas dan Pengamat (Kimwasmat).",
+                    C: "Jaksa dan pembimbing kemasyarakatan (Bapas).",
+                    D: "Menteri Hukum dan Hak Asasi Manusia."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Jenis pidana pengganti denda yang gagal dieksekusi melalui harta benda, yang dihadirkan sebagai perwujudan nyata dari konsep restorative justice (keadilan restoratif) dalam KUHP Baru adalah...",
+                options: {
+                    A: "Pidana Penjara Tradisional.",
+                    B: "Pidana Ganti Rugi (Restitusi).",
+                    C: "Pidana Kerja Sosial dan Pidana Pengawasan",
+                    D: "Pidana Pengasingan."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Berdasarkan Pasal 82 ayat (1) huruf c KUHP Baru, pidana kerja sosial sebagai pengganti denda memiliki syarat mutlak, yaitu hanya berlaku jika pidana penjara pengganti yang mengancam tindak pidana tersebut...",
+                options: {
+                    A: "Tidak lebih dari 6 (enam) bulan.",
+                    B: "Tidak lebih dari 1 (satu) tahun.",
+                    C: "Tepat selama 1 (satu) tahun 6 (enam) bulan.",
+                    D: "Berada di atas 2 (dua) tahun."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Dalam menetapkan jam kerja sosial bagi terpidana yang gagal membayar denda, aturan diatur secara berjenjang tanpa adanya bayaran (upah) dengan wajib memperhatikan...",
+                options: {
+                    A: "Tingkat pendidikan terakhir terpidana serta status sosial ekonominya di masyarakat.",
+                    B: "Kemaslahatan publik serta kondisi fisik dari terpidana itu sendiri.",
+                    C: "Jumlah kerugian finansial negara yang diakibatkan oleh tindak pidana pelaku.",
+                    D: "Jarak geografis antara rumah terpidana dengan kantor Kejaksaan Negeri."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Sebagai manifestasi dari pergeseran paradigma menuju keadilan korektif, rehabilitatif, dan restoratif, KUHP Baru (UU No. 1/2023) memperkenalkan pidana kerja sosial sebagai pidana pokok non-kustodian alternatif. Kendati demikian, undang-undang memberikan batasan ketat dalam penerapannya agar tetap menjaga rasa keadilan masyarakat. Manakah di antara pernyataan berikut yang merupakan syarat materiil dan batasan yuridis yang paling tepat bagi Hakim untuk dapat menjatuhkan pidana kerja sosial tersebut?",
+                options: {
+                    A: "Hanya dapat dijatuhkan jika tindak pidana yang dilakukan diancam dengan pidana penjara kurang dari 5 (lima) tahun, dan hakim menjatuhkan pidana penjara paling lama 6 (enam) bulan atau pidana denda paling banyak kategori II, serta wajib mendapatkan persetujuan terdakwa.",
+                    B: "Dapat dijatuhkan kepada semua jenis tindak pidana ringan terlepas dari ancaman pidananya, asalkan terdakwa menunjukkan penyesalan mendalam dan bersedia secara sukarela di persidangan tanpa perlu mempertimbangkan faktor riwayat sosial terdakwa.",
+                    C: "Dapat diterapkan secara imperatif oleh hakim tanpa memerlukan persetujuan terdakwa, dengan ketentuan durasi pelaksanaan kerja sosial berkisar antara minimal 3 bulan hingga maksimal 2 tahun dan tidak boleh dikomersialkan.",
+                    D: "Hanya boleh dijatuhkan sebagai pidana pengganti jika terdakwa terbukti sama sekali tidak mampu membayar denda kategori I, dengan pengawasan penuh berada di bawah wewenang instansi pemberi kerja sosial tanpa keterlibatan Jaksa."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Pidana kerja sosial dalam sistem pemidanaan modern dirancang agar berbeda secara diametral (bertolak belakang) dari praktik kerja paksa di masa kolonial. Berdasarkan karakteristik khususnya, manakah pernyataan berikut yang secara akurat menggambarkan prinsip pelaksanaan pidana kerja sosial? (SOAL TAMBAHAN: Kalau bisa dihafal)",
+                options: {
+                    A: "Terpidana berhak menerima upah minimum dari instansi sosial tempatnya bekerja demi menjamin kelangsungan hidup keluarganya selama menjalani masa pidana.",
+                    B: "Pekerjaan yang diberikan fokus pada sektor komersial negara, dilaksanakan tanpa melihat batasan kemampuan fisik, dan wajib dilakukan secara penuh waktu (full-time).",
+                    C: "Pelaksanaan pidana kerja sosial harus bersifat edukatif, memperhatikan martabat kemanusiaan, dilakukan tanpa upah pada instansi publik, dan waktunya tidak boleh mengganggu pekerjaan utama atau ibadah terpidana.",
+                    D: "Demi menegakkan efek jera, jadwal kerja sosial diprioritaskan untuk menggantikan jam kerja utama terpidana sehingga ia kehilangan mata pencaharian untuk sementara waktu."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Berdasarkan Pasal 85 KUHP Baru, seorang hakim hanya memiliki pintu masuk untuk menjatuhkan pidana kerja sosial jika tindak pidana yang dilakukan oleh terdakwa memenuhi syarat ancaman hukum tertentu, yaitu...",
+                options: {
+                    A: "Tindak pidana yang dilakukan diancam dengan pidana penjara paling lama 5 (lima) tahun.",
+                    B: "Tindak pidana yang dilakukan diancam dengan pidana penjara kurang dari 5 (lima) tahun.",
+                    C: "Tindak pidana yang dilakukan diancam dengan pidana penjara minimal 5 (lima) tahun.",
+                    D: "Tindak pidana yang dilakukan diancam dengan pidana denda minimal kategori III."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Selain melihat ancaman pasal, Pasal 85 KUHP Baru juga memberikan batasan limitatif pada putusan riil (konkret) yang akan dijatuhkan hakim. Hakim hanya diperbolehkan menjatuhkan pidana kerja sosial apabila vonis riil yang dijatuhkan adalah pidana penjara atau pidana denda sebesar...",
+                options: {
+                    A: "Pidana penjara kurang dari 6 (enam) bulan atau pidana denda paling banyak kategori I.",
+                    B: "Pidana penjara paling lama 5 (lima) tahun atau pidana denda paling banyak kategori II.",
+                    C: "Pidana penjara paling lama 6 (enam) bulan atau pidana denda paling banyak kategori II.",
+                    D: "Pidana penjara paling singkat 6 (enam) bulan atau pidana denda paling sedikit kategori III."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Berdasarkan ketentuan Pasal 85 ayat (2) dan (3) mengenai Ketentuan Durasi Waktu, berapakah batasan total durasi kerja minimal dan maksimal yang telah ditetapkan?",
+                options: {
+                    A: "Minimal 4 jam dan maksimal 120 jam",
+                    B: "Minimal 8 jam dan maksimal 240 jam",
+                    C: "Minimal 12 jam dan maksimal 360 jam",
+                    D: "Minimal 24 jam dan maksimal 480 jam"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Menurut Pasal 85 ayat (2) dan (3) terkait alokasi harian durasi kerja, berapakah batasan waktu minimal dan maksimal yang diizinkan per harinya?",
+                options: {
+                    A: "Minimal 1 jam per hari dan maksimal 3 jam per hari",
+                    B: "Minimal 2 jam per hari dan maksimal 4 jam per hari",
+                    C: "Minimal 3 jam per hari dan maksimal 6 jam per hari",
+                    D: "Minimal 4 jam per hari dan maksimal 8 jam per hari"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Berdasarkan ketentuan dalam Pasal 85 ayat (5), tindakan apakah yang berwenang diambil oleh Hakim apabila seorang terpidana terbukti tidak memenuhi seluruh atau sebagian kewajiban pelaksanaan pidana kerja sosial tanpa adanya alasan yang sah?",
+                options: {
+                    A: "Memperpanjang masa pidana kerja sosial hingga dua kali lipat dari durasi semula atau memberikan sanksi sosial tambahan.",
+                    B: "Memerintahkan terpidana untuk menjalani pidana penjara atau membayar denda yang sedianya digantikan oleh pidana kerja sosial tersebut.",
+                    C: "Menghapuskan hak pembebasan bersyarat terpidana dan memaksanya melakukan kerja sosial di bawah pengawasan militer.",
+                    D: "Menolak permohonan banding terpidana dan langsung mengeksekusi penyitaan seluruh aset pribadinya untuk negara."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam konsep negara hukum (rechtsstaat), hukum pidana mensyaratkan adanya aturan tertulis dan definitif (lex certa) sebelum suatu perbuatan dapat dipidana. Manakah di antara pilihan berikut yang paling tepat menjelaskan mengapa syarat aturan yang ada terlebih dahulu tersebut berfungsi membatasi kekuasaan aparat penegak hukum?",
+                options: {
+                    A: "Agar masyarakat dapat menebak-nebak batasan perbuatan yang dilarang sesuai dengan selera penguasa yang sedang memimpin.",
+                    B: "Untuk memberikan landasan hukum bagi negara agar dapat memberlakukan hukum secara retroaktif (berlaku surut) demi keadilan.",
+                    C: "Mencegah negara atau penegak hukum melakukan kriminalisasi sepihak terhadap warga negara atau lawan politik dengan cara membuat aturan setelah perbuatan terjadi.",
+                    D: "Memastikan bahwa proses edukasi dan pencegahan umum (generale preventie) baru dilakukan setelah pelaku menerima sanksi atau nestapa."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Dalam UU No. 1 Tahun 2023 (KUHP Nasional), terdapat perluasan asas legalitas formal melalui pengakuan terhadap \"hukum yang hidup dalam masyarakat\" (hukum adat). Di sisi lain, asas legalitas merupakan benteng pertahanan pertama HAM yang menghendaki adanya kepastian hukum (lex certa). Bagaimana jembatan penyelesaian dan syarat penerapan hukum yang hidup tersebut agar tetap selaras dengan koridor perlindungan HAM bagi masyarakat adat setempat?",
+                options: {
+                    A: "Penerapan hukum adat harus diserahkan sepenuhnya pada diskresi subjektif aparat penegak hukum di lapangan agar penindakan pelanggaran HAM dapat dilakukan dengan lebih cepat dan responsif.",
+                    B: "Hukum yang hidup dalam masyarakat harus dituangkan ke dalam aturan tertulis di tingkat daerah (melalui Perda) sebagai panduan yang jelas mengenai apa yang dilarang, sehingga hak-hak masyarakat tidak dilanggar atas nama \"kebiasaan\" yang belum disepakati batasannya.",
+                    C: "Asas non-retroaktif dalam Pasal 28I ayat (1) UUD 1945 harus dikesampingkan sepenuhnya demi mengakomodasi berlakunya seluruh hukum adat secara mutlak di Indonesia tanpa batasan nilai Pancasila.",
+                    D: "Setiap bentuk kebiasaan lokal di masyarakat secara otomatis mengesampingkan asas legalitas formal Pasal 1 ayat (1) KUHP Nasional tanpa memerlukan penyelarasan dengan nilai-nilai HAM internasional."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Jenis pidana tambahan yang berfungsi untuk menghilangkan hak-hak spesifik terpidana—seperti hak memegang jabatan publik, hak memilih atau dipilih dalam pemilu, atau hak menjalankan profesi tertentu—karena terpidana dinilai telah menyalahgunakan hak tersebut untuk melakukan tindak pidana disebut...",
+                options: {
+                    A: "Pencabutan izin usaha",
+                    B: "Pencabutan hak-hak tertentu",
+                    C: "Perampasan barang-barang tertentu",
+                    D: "Pengumuman putusan hakim"
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Pidana tambahan berupa \"pencabutan hak-hak tertentu\" dapat dijatuhkan oleh hakim untuk melindungi kepentingan publik yang lebih luas dari penyalahgunaan wewenang atau profesi. Berdasarkan praktik peradilan, manakah kelompok perkara berikut yang paling sering menerapkan jenis pidana tambahan tersebut?",
+                options: {
+                    A: "Tindak Pidana Korupsi (pencabutan hak politik), Malpraktik Profesi (pencabutan hak menjalankan profesi), dan Kejahatan Jabatan/Seksual terhadap Anak (pencabutan hak asuh/perwalian).",
+                    B: "Tindak Pidana Pencurian (pencabutan hak milik), Pelanggaran Lalu Lintas (pencabutan SIM seumur hidup), dan Delik Pers (pencabutan hak menerbitkan media).",
+                    C: "Tindak Pidana Makar (pencabutan status warga negara), Pemalsuan Dokumen (pencabutan hak identitas), dan Kejahatan Siber (pencabutan hak akses internet).",
+                    D: "Tindak Pidana Narkotika (pencabutan hak rehabilitasi), Pembunuhan Berencana (pencabutan hak waris), dan Penggelapan Pajak (pencabutan hak berusaha)."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Hak Asasi Manusia (HAM) tertentu, seperti hak untuk hidup, hak untuk tidak disiksa, dan hak kebebasan pikiran dan hati nurani, merupakan hak-hak yang tidak dapat dikurangi dalam keadaan apa pun (non-derogable rights). Ketentuan mengenai hal tersebut secara tegas diatur dalam Undang-Undang Dasar Negara Republik Indonesia Tahun 1945, yaitu pada… (SOAL TAMBAHAN: Hak-hak absolut yang tidak boleh dicabut oleh Hakim meliputi)",
+                options: {
+                    A: "Pasal 28A",
+                    B: "Pasal 28E ayat (1)",
+                    C: "Pasal 28G ayat (2)",
+                    D: "Pasal 28I ayat (1)"
+                },
+                correctAnswer: "D"
+            },
+            {
+                text: "Dalam hukum acara pidana atau hukum pidana khusus, jaksa sering kali menghadapi kendala saat eksekusi ketika objek perampasan ternyata sudah tidak ada di tempat atau telah berpindah tangan ke pihak ketiga yang beritikad baik. Agar amar putusan tidak menjadi illusoir (hampa/tidak dapat dieksekusi) dengan tetap melindungi hak pihak ketiga tersebut, mekanisme manakah yang harus diterapkan oleh Hakim dalam amar putusannya?",
+                options: {
+                    A: "Membatalkan sita jaminan atas objek tersebut dan membebankan seluruh biaya perkara kepada terdakwa sebagai ganti rugi materiil negara.",
+                    B: "Menerapkan mekanisme Perampasan Pengganti (Substitutionary Forfeiture) atau menetapkan pembayaran sejumlah uang pengganti yang nilainya setara.",
+                    C: "Menangguhkan eksekusi putusan sampai pihak ketiga mengembalikan objek perampasan secara sukarela kepada negara.",
+                    D: "Melakukan penyitaan paksa terhadap objek tersebut dari tangan pihak ketiga tanpa memedulikan iktikad baiknya demi memulihkan kerugian negara."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam suatu perkara pidana, objek atau tagihan yang menjadi aset tindak pidana ternyata telah dialihkan kepada pihak ketiga yang terbukti memiliki iktikad baik. Berdasarkan asas perlindungan pihak ketiga, bagaimanakah sikap hakim dalam pertimbangan hukumnya terkait aset tersebut?",
+                options: {
+                    A: "Hakim tetap wajib merampas barang/tagihan tersebut secara fisik demi memulihkan kerugian negara tanpa memedulikan status pihak ketiga.",
+                    B: "Hakim harus menyatakan bahwa barang/tagihan tersebut tidak dapat dirampas secara fisik untuk melindungi hak-hak sah dari pihak ketiga yang beritikad baik.",
+                    C: "Hakim memerintahkan pihak ketiga untuk melakukan gugatan perdata secara terpisah agar barang fisik tersebut bisa disita terlebih dahulu oleh negara.",
+                    D: "Hakim menetapkan pihak ketiga sebagai turut tergugat atau pelaku penyertaan agar aset fisik dapat disita untuk dinilai harganya."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Apabila suatu objek perampasan telah hilang, rusak, atau beralih kepada pihak ketiga yang beritikad baik, bagaimanakah penerapan Asas Keadilan dan Pengembalian Kerugian Negara terhadap objek tersebut?",
+                options: {
+                    A: "Negara harus merelakan kerugian tersebut sebagai risiko kedaluwarsa penegakan hukum dan perkara dianggap selesai.",
+                    B: "Nilai ekonomis dari barang atau tagihan tersebut harus tetap dikembalikan ke negara agar negara tidak dirugikan akibat hilangnya, rusaknya, atau beralihnya objek perampasan.",
+                    C: "Hakim harus membebankan ganti rugi fisik berupa barang sejenis yang diambil secara acak dari aset milik keluarga terpidana.",
+                    D: "Kejaksaan diwajibkan mencari objek pengganti yang memiliki fungsi sosial yang sama, meskipun nilainya jauh lebih rendah dari objek semula."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Ketika objek perampasan tidak dapat disita secara fisik karena telah beralih atau rusak, hakim dalam pertimbangan hukumnya wajib merumuskan ketetapan nilai. Bagaimanakah metode penetapan nominal yang harus dicantumkan hakim sebelum menyusun amar?",
+                options: {
+                    A: "Hakim menetapkan nominal pasti yang setara dengan nilai pasar wajar dari barang atau tagihan tersebut saat tindak pidana terjadi atau saat putusan dibuat.",
+                    B: "Hakim menyerahkan sepenuhnya penentuan estimasi nilai nominal kepada diskresi jaksa penuntut umum pada saat eksekusi nanti.",
+                    C: "Hakim cukup menuliskan klausul \"ganti rugi seadil-adilnya\" tanpa perlu menyebutkan nominal angka yang pasti demi fleksibilitas eksekusi.",
+                    D: "Hakim menggunakan nilai buku atau nilai perolehan awal barang saat pertama kali dibeli oleh terdakwa, terlepas dari fluktuasi harga pasar."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Mengapa seorang hakim tidak boleh hanya merumuskan amar putusan dengan kalimat tunggal seperti \"Merampas barang X untuk Negara\", melainkan harus dirumuskan secara substitutif-akumulatif?",
+                options: {
+                    A: "Karena jaksa penuntut umum tidak memiliki kewenangan hukum untuk menyita barang bukti yang berada di tangan pihak ketiga.",
+                    B: "Agar putusan tersebut memiliki kekuatan pembuktian yang sempurna saat terdakwa mengajukan upaya hukum banding atau kasasi.",
+                    C: "Untuk menghindari risiko putusan tidak dapat dieksekusi (unexecutable) oleh Jaksa Eksekutor apabila barang bukti tersebut ternyata rusak, hilang, atau telah berpindah tangan.",
+                    D: "Because hukum acara pidana mewajibkan setiap perampasan barang bukti harus selalu disertai dengan hukuman badan berupa pidana penjara tambahan."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Bagaimanakah solusi hukum yang dirumuskan dalam amar putusan di atas jika barang bukti asli yang hendak dirampas ternyata telah dipindahtangankan kepada pihak ketiga yang beritikad baik?",
+                options: {
+                    A: "Putusan batal demi hukum dan terdakwa dibebaskan dari segala tuntutan ganti rugi materiil.",
+                    B: "Barang bukti tetap disita secara paksa dari pihak ketiga tersebut tanpa memberikan ganti rugi apa pun.",
+                    C: "Terdakwa dihukum membayar uang pengganti yang setara dengan nilai barang, dan jika harta bendanya tidak mencukupi, diganti dengan pidana penjara/kurungan pengganti.",
+                    D: "Jaksa harus melakukan gugatan perdata baru terhadap pihak ketiga untuk menarik kembali barang bukti tersebut."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Untuk memastikan pelaksanaan amar subsidair dapat berjalan efektif jika barang bukti utama ternyata hilang atau dialihkan, tindakan preventif apa yang idealnya dilakukan oleh Jaksa sejak proses penyidikan atau penuntutan?",
+                options: {
+                    A: "Langsung mengeksekusi pidana badan pengganti tanpa perlu mencari aset terdakwa lainnya.",
+                    B: "Melakukan penyitaan jaminan (conservative seizure) terhadap aset lain milik terdakwa yang nilainya setara.",
+                    C: "Menerahkan pengawasan barang bukti sepenuhnya kepada kurator pailit.",
+                    D: "Menuntut terdakwa dengan pasal pencucian uang agar seluruh aset keluarganya otomatis tersita."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Dalam konteks eksekusi putusan tindak pidana, kapan pidana kurungan pengganti dapat diterapkan sebagai benteng terakhir (ultimum remedium) bagi terdakwa yang dijatuhi hukuman finansial kepada negara?",
+                options: {
+                    A: "Ketika terdakwa menolak secara lisan untuk membayar denda atau uang pengganti sejak awal persidangan.",
+                    B: "Saat nilai barang bukti utama mengalami penurunan harga akibat inflasi pasar.",
+                    C: "Apabila terdakwa benar-benar pailit atau miskin dan tidak ada lagi aset lain yang dapat disita oleh Jaksa.",
+                    D: "Jika Jaksa menilai bahwa pidana kurungan lebih memberikan efek jera daripada penyitaan aset materiil."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Dalam konsep Restorative Justice Progresif, bagaimana seharusnya kedudukan pidana kurungan pengganti dalam mekanisme eksekusi pembayaran restitusi atau pemulihan hak korban?",
+                options: {
+                    A: "Sebagai opsi utama yang setara dan bebas dipilih oleh terpidana sejak awal.",
+                    B: "Sebagai ultimum remedium (upaya terakhir) yang baru diterapkan jika upaya pelacakan dan sita eksekusi aset tidak membuahkan hasil.",
+                    C: "Sebagai satu-satunya hukuman yang wajib dijalani tanpa perlu melakukan penelusuran aset terpidana.",
+                    D: "Sebagai instrumen pendukung yang dijalankan secara bersamaan dengan penyitaan aset tanpa batasan."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Langkah agresif apa yang harus dioptimalkan oleh Jaksa Eksekutor demi mewujudkan pemulihan hak korban secara substansial ketika menghadapi tindakan penyelundupan aset oleh terpidana?",
+                options: {
+                    A: "Langsung menjatuhkan hukuman kurungan pengganti tanpa melakukan kerja sama antarinstansi.",
+                    B: "Melakukan penangguhan eksekusi sampai terpidana dengan sukarela menyerahkan asetnya.",
+                    C: "Melakukan tracing asset (penelusuran aset) secara agresif dengan bekerja sama bersama PPATK, perbankan, dan instansi terkait.",
+                    D: "Menyerahkan sepenuhnya beban pelacakan dan pembuktian keberadaan aset kepada korban kejahatan."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Jika seorang terpidana terbukti mengalihkan asetnya dengan iktikad buruk kepada pihak ketiga demi menghindari kewajiban hukumnya, tindakan hukum progresif apa yang dapat dilakukan berdasarkan teks di atas?",
+                options: {
+                    A: "Melakukan sita eksekusi (executorial beslag) terhadap aset tersembunyi tersebut menggunakan instrumen seperti Action Pauliana.",
+                    B: "Membiarkan aset tersebut karena hak kepemilikannya sudah sah berpindah ke tangan pihak ketiga.",
+                    C: "Menuntut pihak ketiga tersebut dengan pidana mati tanpa melalui proses pembuktian iktikad buruk.",
+                    D: "Mengajukan permohonan pembatalan putusan pengadilan yang lama agar dibuat putusan baru."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Secara ideal, tindakan menyembunyikan atau menyamarkan asal-usul harta kekayaan yang seharusnya diserahkan kepada korban dapat dipandang sebagai tindak pidana baru. Menggunakan undang-undang atau doktrin hukum apakah tindakan penyelundupan tersebut dapat dijerat?",
+                options: {
+                    A: "Undang-Undang Hak Asasi Manusia (UU HAM) karena melanggar hak hidup terpidana.",
+                    B: "Doktrin Contempt of Court / Obstruction of Justice, serta Undang-Undang Tindak Pidana Pencucian Uang (TPPU).",
+                    C: "Undang-Undang Perlindungan Konsumen karena merugikan pihak ketiga yang menerima aset.",
+                    D: "Hukum Adat setempat mengenai sanksi pengasingan sosial."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Apabila seorang terpidana menyembunyikan aset hasil kejahatannya di dalam struktur korporasi miliknya atau menyamarkannya menggunakan nama anggota keluarga (nominee), tindakan hukum progresif apa yang dapat dilakukan oleh Hakim dalam pertimbangan hukumnya agar aset tersebut tetap dapat dieksekusi demi hukum?",
+                options: {
+                    A: "Melakukan penyitaan massal terhadap seluruh aset perusahaan tanpa perlu membuktikan keterlibatan korporasi.",
+                    B: "Menerapkan doktrin Corporate/Individual Veil Piercing secara progresif untuk membuka \"selubung\" korporasi atau penyamaran aset tersebut.",
+                    C: "Menjatuhkan pidana tambahan berupa pembubaran korporasi secara mutlak tanpa memedulikan nasib aset korban.",
+                    D: "Mengalihkan status kepemilikan saham korporasi secara langsung kepada korban tanpa melalui proses sita eksekusi."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Sebagai solusi jangka panjang untuk menjamin keadilan substansial ketika pelaku kejahatan benar-benar miskin (bukan menyembunyikan aset), negara idealnya membentuk Victim Trust Fund (Dana Bantuan Korban). Bagaimana mekanisme kerja dari lembaga ini dalam memulihkan hak korban?",
+                options: {
+                    A: "Negara memberikan bantuan modal usaha kepada pelaku agar mampu mencicil restitusi kepada korban dalam jangka waktu tertentu.",
+                    B: "Negara menghapuskan kewajiban restitusi pelaku dan meminta korban untuk mengikhlaskan kerugiannya demi hukum.",
+                    C: "Negara membayar restitusi terlebih dahulu kepada korban, lalu negara mengambil alih hak tagih (subrogasi) kepada terpidana seumur hidupnya.",
+                    D: "Negara menyita aset milik keluarga besar pelaku untuk membayar ganti rugi yang dialami oleh korban."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Sebagai seorang Hakim yang sedang menangani kasus tindak pidana korporasi, Anda dihadapkan pada tuntutan Jaksa Penuntut Umum yang meminta pidana tambahan berupa pencabutan izin usaha total terhadap PT Maju Bersama. Berdasarkan parameter proporsionalitas dan keadilan, manakah di antara situasi berikut yang paling tepat dan memenuhi syarat untuk dijatuhi pidana tambahan pencabutan izin usaha tersebut?",
+                options: {
+                    A: "PT Maju Bersama terbukti melakukan pelanggaran lingkungan di salah satu anak cabangnya akibat ulah oknum karyawan (rogue employee), meskipun perusahaan telah memiliki sistem kepatuhan (compliance program) yang ketat dan tersertifikasi.",
+                    B: "PT Maju Bersama merupakan perusahaan transportasi publik utama di suatu daerah yang melakukan penggelapan pajak secara sistematis oleh manajemen puncaknya, di mana pencabutan izin akan langsung menghentikan mobilitas harian ribuan warga.",
+                    C: "PT Maju Bersama sejak awal didirikan oleh pemilik modalnya murni sebagai perusahaan cangkang (shell company) guna memfasilitasi tindak pidana pencucian uang dan perdagangan orang, sehingga memiliki unreformable corporate culture.",
+                    D: "PT Maju Bersama terbukti melakukan kelalaian kerja, namun pemilik modalnya dikenal sering melakukan taktik phoenix company (mudah mendirikan korporasi baru dengan nama berbeda untuk menghindari jerat hukum)."
+                },
+                correctAnswer: "C"
+            },
+            {
+                text: "Mengapa seorang Hakim Pidana tetap memiliki kewenangan (kompetensi absolut) untuk menjatuhkan pidana tambahan berupa restitusi meskipun sudah ada putusan perdata PMH mengenai kerugian yang sama?",
+                options: {
+                    A: "Karena sifat hukum restitusi melekat pada pemidanaan publik sebagai bentuk pertanggungjawaban pidana pelaku, sehingga hak negara untuk mempidana tidak boleh hilang oleh putusan perdata privat.",
+                    B: "Karena putusan perdata memiliki derajat hukum yang lebih rendah daripada putusan peradilan pidana.",
+                    C: "Karena nilai restitusi dalam peradilan pidana secara otomatis membatalkan seluruh isi amar putusan perdata yang telah inkrah.",
+                    D: "Karena proses eksekusi restitusi dalam pidana sepenuhnya diserahkan kepada korban tanpa keterlibatan Jaksa Eksekutor."
+                },
+                correctAnswer: "A"
+            },
+            {
+                text: "Dalam persidangan pidana, Hakim menemukan fakta bahwa terpidana ternyata sudah membayar lunas ganti rugi senilai Rp100 juta berdasarkan putusan perdata PMH untuk komponen kerugian riil yang sama. Langkah hukum apa yang harus diambil oleh Hakim Pidana guna mencegah terjadinya double recovery?",
+                options: {
+                    A: "Hakim tetap menjatuhkan restitusi Rp100 juta agar korban mendapatkan keuntungan finansial yang maksimal (unjust enrichment).",
+                    B: "Hakim membebankan restitusi sebesar Rp0 (nihil) atau menyatakan tuntutan restitusi tidak dapat diterima, sepanjang komponen kerugian yang dimohonkan sama.",
+                    C: "Hakim membatalkan putusan perdata yang sudah dieksekusi tersebut demi hukum.",
+                    D: "Hakim mengalihkan sanksi restitusi tersebut menjadi pidana tambahan berupa pencabutan hak-hak tertentu secara absolut."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Jika putusan perdata yang menghukum terdakwa membayar ganti rugi baru sebatas di atas kertas (belum dieksekusi), bagaimana formulasi amar atau pertimbangan hukum yang harus disusun oleh Hakim Pidana dalam menjatuhkan restitusi?",
+                options: {
+                    A: "Hakim Pidana dilarang menjatuhkan restitusi dan harus meminta korban menunggu eksekusi perdata selesai.",
+                    B: "Hakim Pidana menjatuhkan restitusi sebesar nilai kerugian riil, namun memberikan catatan dalam pertimbangan hukum bahwa jika salah satu putusan telah dieksekusi, maka nominal tersebut otomatis mengurangi nilai eksekusi pada putusan lainnya.",
+                    C: "Hakim Pidana melipatgandakan nominal restitusi sebagai denda keterlambatan karena putusan perdata belum dieksekusi.",
+                    D: "Hakim Pidana menyatakan menunda persidangan pidana sampai eksekusi perdata selesai dilaksanakan oleh Juru Sita."
+                },
+                correctAnswer: "B"
+            },
+            {
+                text: "Manakah di bawah ini yang merupakan perbedaan fundamental antara instrumen ganti rugi dalam Gugatan Perdata (PMH) dengan Restitusi (Pidana Tambahan) dari aspek tujuan utama dan eksekusinya?",
+                options: {
+                    A: "PMH bertujuan mengembalikan tatanan sosial dan dieksekusi oleh Jaksa, sedangkan Restitusi bertujuan mengembalikan posisi privat korban dan dieksekusi oleh Juru Sita.",
+                    B: "PMH bersifat publik dengan substitusi kurungan, sedangkan Restitusi bersifat privat murni dan tidak mengenal kurungan pengganti.",
+                    C: "PMH bertujuan mengembalikan keadaan korban ke posisi semula (restitutio in integrum) melalui sita eksekusi perdata mandiri; sedangkan Restitusi merupakan bagian pemidanaan publik yang dipaksakan oleh Jaksa dan dapat disubstitusi kurungan jika tidak dibayar.",
+                    D: "Kedua instrumen tersebut memiliki hulu, tujuan, dan mekanisme eksekusi yang sama persis sehingga tidak memiliki aspek pembeda."
+                },
+                correctAnswer: "C"
+            }
+        ];
+
+        // State Global Aplikasi
+        let userAnswers = {};
+        let doubtfulAnswers = {};
+        let currentQuestionIndex = 0;
+        let totalExamTime = 90 * 60; // 90 Menit dalam hitungan detik
+        let remainingTime = totalExamTime;
+        let timerInterval = null;
+        let startTimeStamp = null;
+
+        const STORAGE_KEY_STATE = "CAT_TRYOUT_STATE_V1";
+
+        const landingPage = document.getElementById('landing-page');
+        const examPage = document.getElementById('exam-page');
+        const resultPage = document.getElementById('result-page');
+        const fileInput = document.getElementById('file-input');
+        const fileStatus = document.getElementById('file-status');
+        const btnStart = document.getElementById('btn-start');
+        const infoTotalSoal = document.getElementById('info-total-soal');
+
+        fileInput.addEventListener('change', handleFileUpload);
+        window.addEventListener('load', checkSavedState);
+
+        // ----------------------------------------------------
+        // PARSER ENGINE: UNTUK MENDUKUNG UPLOAD FILE TAMBAHAN
+        // ----------------------------------------------------
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            fileStatus.innerHTML = `<span class="text-blue-600"><i class="fa-solid fa-spinner fa-spin"></i> Memuat berkas...</span>`;
+
+            if (file.name.endsWith('.docx')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    mammoth.convertToHtml({ arrayBuffer: event.target.result })
+                        .then(function(result) { parseHtmlQuestions(result.value); })
+                        .catch(function(err) { fileStatus.innerHTML = `<span class="text-red-600">Gagal memproses file .docx</span>`; });
+                };
+                reader.readAsArrayBuffer(file);
+            } else if (file.name.endsWith('.txt')) {
+                const reader = new FileReader();
+                reader.onload = function(event) { parseTxtQuestions(event.target.result); };
+                reader.readAsText(file);
+            }
+        }
+
+        function parseHtmlQuestions(htmlContent) {
+            const doc = new DOMParser().parseFromString(htmlContent, 'text/html');
+            const paragraphs = doc.querySelectorAll('p');
+            let parsedQuestions = [];
+            let currentQ = null;
+
+            paragraphs.forEach((p) => {
+                let text = p.innerText ? p.innerText.trim() : p.textContent.trim();
+                if (!text) return;
+                const questionMatch = text.match(/^(\d+)[\.\s]+(.*)/);
+                if (questionMatch) {
+                    if (currentQ && Object.keys(currentQ.options).length > 0) parsedQuestions.push(currentQ);
+                    currentQ = { text: questionMatch[2], options: {}, correctAnswer: null };
+                } else if (currentQ) {
+                    const optionMatch = text.match(/^([A-D])[\.\s]+(.*)/i);
+                    if (optionMatch) {
+                        const key = optionMatch[1].toUpperCase();
+                        currentQ.options[key] = optionMatch[2];
+                        if (p.querySelector('strong') || p.querySelector('b')) currentQ.correctAnswer = key;
+                    } else {
+                        currentQ.text += "<br>" + text;
+                    }
+                }
+            });
+            if (currentQ && Object.keys(currentQ.options).length > 0) parsedQuestions.push(currentQ);
+            if(parsedQuestions.length > 0) {
+                questions = parsedQuestions;
+                infoTotalSoal.innerText = `${questions.length} Soal`;
+                fileStatus.innerHTML = `<span class="text-green-600 font-bold"><i class="fa-solid fa-circle-check"></i> Berhasil memperbarui ${questions.length} soal!</span>`;
+            }
+        }
+
+        function parseTxtQuestions(textData) {
+            const lines = textData.split('\n');
+            let parsedQuestions = [];
+            let currentQ = null;
+            lines.forEach((line) => {
+                let text = line.trim();
+                if (!text) return;
+                const questionMatch = text.match(/^(\d+)[\.\s]+(.*)/);
+                if (questionMatch) {
+                    if (currentQ && Object.keys(currentQ.options).length > 0) parsedQuestions.push(currentQ);
+                    currentQ = { text: questionMatch[2], options: {}, correctAnswer: 'A' };
+                } else if (currentQ) {
+                    const optionMatch = text.match(/^([A-D])[\.\s]+(.*)/i);
+                    if (optionMatch) currentQ.options[optionMatch[1].toUpperCase()] = optionMatch[2];
+                }
+            });
+            if (currentQ && Object.keys(currentQ.options).length > 0) parsedQuestions.push(currentQ);
+            if(parsedQuestions.length > 0) {
+                questions = parsedQuestions;
+                infoTotalSoal.innerText = `${questions.length} Soal`;
+                fileStatus.innerHTML = `<span class="text-green-600 font-bold"><i class="fa-solid fa-circle-check"></i> Berhasil memuat ${questions.length} soal!</span>`;
+            }
+        }
+
+        // ----------------------------------------------------
+        // MANAGEMENT STATE RETENTION (LOCAL STORAGE)
+        // ----------------------------------------------------
+        function saveCurrentState() {
+            const state = {
+                questions: questions,
+                userAnswers: userAnswers,
+                doubtfulAnswers: doubtfulAnswers,
+                currentQuestionIndex: currentQuestionIndex,
+                remainingTime: remainingTime,
+                username: document.getElementById('username').value,
+                startTimeStamp: startTimeStamp
+            };
+            localStorage.setItem(STORAGE_KEY_STATE, JSON.stringify(state));
+        }
+
+        function checkSavedState() {
+            const saved = localStorage.getItem(STORAGE_KEY_STATE);
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    if (confirm(`Ditemukan sesi ujian terputus atas nama "${state.username}". Ingin melanjutkan posisi terakhir?`)) {
+                        questions = state.questions;
+                        userAnswers = state.userAnswers;
+                        doubtfulAnswers = state.doubtfulAnswers;
+                        currentQuestionIndex = state.currentQuestionIndex;
+                        remainingTime = state.remainingTime;
+                        document.getElementById('username').value = state.username;
+                        startTimeStamp = state.startTimeStamp || new Date().toISOString();
+                        infoTotalSoal.innerText = `${questions.length} Soal`;
+                        startExam(true);
+                    } else {
+                        localStorage.removeItem(STORAGE_KEY_STATE);
+                    }
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        // ----------------------------------------------------
+        // ALUR MEKANISME UTAMA UJIAN
+        // ----------------------------------------------------
+        btnStart.addEventListener('click', () => { startExam(false); });
+
+        function startExam(isRecovered) {
+            const nameInput = document.getElementById('username').value.trim();
+            if (!nameInput) { alert("Silakan masukkan nama Anda."); return; }
+
+            landingPage.classList.add('hidden');
+            examPage.classList.remove('hidden');
+
+            document.getElementById('exam-user-display').innerText = `Peserta: ${nameInput}`;
+
+            if (!isRecovered) {
+                remainingTime = 90 * 60;
+                userAnswers = {};
+                doubtfulAnswers = {};
+                currentQuestionIndex = 0;
+                startTimeStamp = new Date().toISOString();
+                saveCurrentState();
+            }
+
+            initNavGrid();
+            renderQuestion();
+            startTimer();
+            initSecurityListeners();
+        }
+
+        function initNavGrid() {
+            const grid = document.getElementById('nav-grid');
+            grid.innerHTML = '';
+            questions.forEach((_, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `nav-item-${idx}`;
+                btn.innerText = idx + 1;
+                btn.className = getNavButtonClass(idx);
+                btn.onclick = () => { currentQuestionIndex = idx; renderQuestion(); };
+                grid.appendChild(btn);
+            });
+        }
+
+        function getNavButtonClass(idx) {
+            let base = "h-11 w-11 rounded-xl font-bold text-sm flex items-center justify-center transition border cursor-pointer ";
+            if (idx === currentQuestionIndex) base += "ring-2 ring-offset-2 ring-blue-600 ";
+            if (doubtfulAnswers[idx]) return base + "bg-amber-400 border-amber-500 text-white";
+            if (userAnswers[idx]) return base + "bg-blue-600 border-blue-700 text-white";
+            return base + "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200";
+        }
+
+        function renderQuestion() {
+            if (questions.length === 0) return;
+            const q = questions[currentQuestionIndex];
+
+            document.getElementById('current-question-num').innerText = currentQuestionIndex + 1;
+            document.getElementById('question-text').innerHTML = q.text;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            Object.keys(q.options).forEach((key) => {
+                const isSelected = userAnswers[currentQuestionIndex] === key;
+                const optionBox = document.createElement('div');
+                optionBox.onclick = () => { userAnswers[currentQuestionIndex] = key; renderQuestion(); };
+                optionBox.className = `p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
+                    isSelected ? 'bg-blue-50 border-blue-600 text-blue-900 font-semibold' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`;
+                optionBox.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}">${key}</div>
+                    <div class="flex-1 text-sm md:text-base">${q.options[key]}</div>
+                `;
+                container.appendChild(optionBox);
+            });
+
+            document.getElementById('btn-prev').disabled = currentQuestionIndex === 0;
+            const doubtBtn = document.getElementById('btn-doubt');
+            doubtBtn.className = doubtfulAnswers[currentQuestionIndex] 
+                ? "px-5 py-2.5 bg-amber-400 border border-amber-500 text-white font-semibold rounded-xl transition flex items-center gap-2 cursor-pointer"
+                : "px-5 py-2.5 bg-amber-50 border border-amber-300 text-amber-700 font-semibold rounded-xl hover:bg-amber-100 transition flex items-center gap-2 cursor-pointer";
+
+            initNavGrid();
+            loadEditorData(); // Muat data soal ke panel Editor di sebelah kanan
+            saveCurrentState();
+        }
+
+        // ----------------------------------------------------
+        // ENGINE LIVE EDITOR TAMBAHAN (MENGUBAH DATA LIVE)
+        // ----------------------------------------------------
+        function loadEditorData() {
+            const q = questions[currentQuestionIndex];
+            document.getElementById('editor-num-info').innerText = `(#${currentQuestionIndex + 1})`;
+            document.getElementById('edit-question-text').value = q.text;
+            
+            // Masukkan data teks jawaban ke input editor
+            document.getElementById('edit-opt-A').value = q.options.A || '';
+            document.getElementById('edit-opt-B').value = q.options.B || '';
+            document.getElementById('edit-opt-C').value = q.options.C || '';
+            document.getElementById('edit-opt-D').value = q.options.D || '';
+            
+            // Tandai radio button sesuai kunci jawaban saat ini
+            const radios = document.getElementsByName('edit-correct-key');
+            radios.forEach(radio => {
+                radio.checked = (radio.value === q.correctAnswer);
+            });
+        }
+
+        function updateLiveQuestionData() {
+            const q = questions[currentQuestionIndex];
+            
+            // Update teks pertanyaan
+            q.text = document.getElementById('edit-question-text').value;
+            
+            // Update teks pilihan jawaban
+            q.options.A = document.getElementById('edit-opt-A').value;
+            q.options.B = document.getElementById('edit-opt-B').value;
+            q.options.C = document.getElementById('edit-opt-C').value;
+            q.options.D = document.getElementById('edit-opt-D').value;
+            
+            // Update kunci jawaban dari radio button yang terpilih
+            const selectedRadio = document.querySelector('input[name="edit-correct-key"]:checked');
+            if (selectedRadio) {
+                q.correctAnswer = selectedRadio.value;
+            }
+            
+            // Segarkan visual workspace soal kiri secara dinamis tanpa berpindah halaman
+            document.getElementById('question-text').innerHTML = q.text;
+            
+            const container = document.getElementById('options-container');
+            const childs = container.children;
+            if(childs.length === 4) {
+                childs[0].querySelector('.flex-1').innerText = q.options.A;
+                childs[1].querySelector('.flex-1').innerText = q.options.B;
+                childs[2].querySelector('.flex-1').innerText = q.options.C;
+                childs[3].querySelector('.flex-1').innerText = q.options.D;
+            }
+            saveCurrentState();
+        }
+
+        function toggleDoubtful() {
+            if (doubtfulAnswers[currentQuestionIndex]) { delete doubtfulAnswers[currentQuestionIndex]; } 
+            else { doubtfulAnswers[currentQuestionIndex] = true; }
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) { currentQuestionIndex++; renderQuestion(); }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) { currentQuestionIndex--; renderQuestion(); }
+        }
+
+        // ----------------------------------------------------
+        // SISTEM TIMING DAN SECURITY ENGINE (HANYA KLIK KANAN)
+        // ----------------------------------------------------
+        function startTimer() {
+            clearInterval(timerInterval);
+            const timerContainer = document.getElementById('timer-container');
+            const timerIcon = document.getElementById('timer-icon');
+            const timerDisplay = document.getElementById('timer');
+
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                let mins = Math.floor(remainingTime / 60);
+                let secs = remainingTime % 60;
+                timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                if (remainingTime <= 10 * 60) {
+                    timerContainer.className = "flex items-center gap-3 bg-red-50 px-5 py-2.5 rounded-xl border border-red-300 animate-pulse text-red-600";
+                    timerIcon.className = "fa-solid fa-triangle-exclamation text-xl text-red-500";
+                }
+                if (remainingTime <= 0) { clearInterval(timerInterval); endExam(); }
+            }, 1000);
+        }
+
+        function initSecurityListeners() {
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+        }
+
+        // ----------------------------------------------------
+        // SKORING AKHIR DAN RINGKASAN HASIL
+        // ----------------------------------------------------
+        function confirmEndExam() {
+            let totalAnswered = Object.keys(userAnswers).length;
+            if (confirm(`Selesai ujian?\nDijawab: ${totalAnswered}\nSisa: ${questions.length - totalAnswered}`)) { endExam(); }
+        }
+
+        function endExam() {
+            clearInterval(timerInterval);
+            let correctCount = 0, wrongCount = 0, emptyCount = 0;
+
+            questions.forEach((q, idx) => {
+                const ans = userAnswers[idx];
+                if (!ans) emptyCount++;
+                else if (ans === q.correctAnswer) correctCount++;
+                else wrongCount++;
+            });
+
+            let score = ((correctCount / questions.length) * 100).toFixed(1);
+            localStorage.removeItem(STORAGE_KEY_STATE);
+
+            examPage.classList.add('hidden');
+            resultPage.classList.remove('hidden');
+
+            document.getElementById('res-nama').innerText = document.getElementById('username').value;
+            document.getElementById('res-tanggal').innerText = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            let usedTime = (90 * 60) - remainingTime;
+            document.getElementById('res-durasi').innerText = `${Math.floor(usedTime / 60)} menit ${usedTime % 60} detik`;
+            document.getElementById('res-nilai').innerText = score;
+            document.getElementById('res-benar').innerText = correctCount;
+            document.getElementById('res-salah').innerText = wrongCount;
+            document.getElementById('res-kosong').innerText = emptyCount;
+
+            renderReviewSection();
+        }
+
+        function renderReviewSection() {
+            const container = document.getElementById('review-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                const uAns = userAnswers[idx];
+                const cAns = q.correctAnswer;
+                const isCorrect = uAns === cAns;
+
+                const box = document.createElement('div');
+                box.className = `p-5 rounded-2xl border-2 ${isCorrect ? 'bg-green-50/50 border-green-200' : 'bg-red-50/50 border-red-200'}`;
+
+                let optionsHtml = '';
+                Object.keys(q.options).forEach((k) => {
+                    let isKeyCorrect = k === cAns;
+                    let isKeyUser = k === uAns;
+                    let textStyle = isKeyCorrect ? 'text-green-700 font-bold' : (isKeyUser ? 'text-red-700 line-through' : 'text-slate-600');
+                    optionsHtml += `
+                        <div class="text-sm py-1 border-b border-slate-100 flex items-start gap-2 ${textStyle}">
+                            <strong>${k}.</strong> <span>${q.options[k]}</span>
+                            ${isKeyCorrect ? '<span class="text-xs bg-green-200 text-green-800 px-1.5 py-0.5 rounded font-bold">Kunci</span>':''}
+                            ${isKeyUser && !isCorrect ? '<span class="text-xs bg-red-200 text-red-800 px-1.5 py-0.5 rounded font-bold">Pilihan Anda</span>':''}
+                        </div>`;
+                });
+
+                box.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold bg-slate-200 px-2.5 py-1 rounded">SOAL ${idx + 1}</span>
+                        <span class="text-xs font-bold ${isCorrect ? 'text-green-600':'text-red-600'}">${isCorrect ? 'BENAR':'SALAH / KOSONG'}</span>
+                    </div>
+                    <p class="text-slate-800 font-medium mb-3">${q.text}</p>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">${optionsHtml}</div>`;
+                container.appendChild(box);
+            });
+        }
+
+        function downloadJsonReport() {
+            const dataReport = {
+                nama: document.getElementById('res-nama').innerText,
+                skor: document.getElementById('res-nilai').innerText,
+                waktu: document.getElementById('res-durasi').innerText
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataReport, null, 2));
+            const a = document.createElement('a');
+            a.setAttribute("href", dataStr);
+            a.setAttribute("download", `Hasil_CAT_${dataReport.nama}.json`);
+            a.click();
+        }
+
+        function restartApp() { window.location.reload(); }
+    </script>
+
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            #printable-area { border: none !important; box-shadow: none !important; width: 100% !important; }
+        }
+    </style>
+</body>
+</html>
