@@ -139,10 +139,10 @@
                 </div>
             </main>
 
-            <!-- Sisi Kanan: Sidebar Navigasi Nomor Soal & Editor Khusus -->
+            <!-- Sisi Kanan: Sidebar Navigasi Nomor Soal -->
             <aside class="w-full md:w-80 bg-white border-t md:border-t-0 md:border-l border-slate-200 p-6 flex flex-col justify-between gap-6 overflow-y-auto">
                 <div>
-                    <h3 class="font-bold text-slate-990 mb-4 flex items-center gap-2">
+                    <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-th"></i> Navigasi Soal
                     </h3>
                     
@@ -159,48 +159,6 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="w-4 h-4 rounded bg-amber-400 block"></span> Ragu-ragu
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PANEL TAMBAHAN: LIVE EDITOR SOAL & JAWABAN -->
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                        <i class="fa-solid fa-user-gear text-blue-600"></i> Panel Editor Soal <span id="editor-num-info" class="text-blue-600">(#1)</span>
-                    </h4>
-                    
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Isi Pertanyaan:</label>
-                            <textarea id="edit-question-text" rows="3" class="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white outline-none" oninput="updateLiveQuestionData()"></textarea>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase">Pilihan Jawaban & Kunci:</label>
-                            
-                            <div class="flex gap-2 items-center">
-                                <input type="radio" name="edit-correct-key" value="A" onchange="updateLiveQuestionData()" class="w-3.5 h-3.5 text-blue-600">
-                                <span class="text-xs font-bold text-slate-500">A:</span>
-                                <input type="text" id="edit-opt-A" oninput="updateLiveQuestionData()" class="w-full p-1.5 border border-slate-300 rounded-md text-xs bg-white outline-none">
-                            </div>
-
-                            <div class="flex gap-2 items-center">
-                                <input type="radio" name="edit-correct-key" value="B" onchange="updateLiveQuestionData()" class="w-3.5 h-3.5 text-blue-600">
-                                <span class="text-xs font-bold text-slate-500">B:</span>
-                                <input type="text" id="edit-opt-B" oninput="updateLiveQuestionData()" class="w-full p-1.5 border border-slate-300 rounded-md text-xs bg-white outline-none">
-                            </div>
-
-                            <div class="flex gap-2 items-center">
-                                <input type="radio" name="edit-correct-key" value="C" onchange="updateLiveQuestionData()" class="w-3.5 h-3.5 text-blue-600">
-                                <span class="text-xs font-bold text-slate-500">C:</span>
-                                <input type="text" id="edit-opt-C" oninput="updateLiveQuestionData()" class="w-full p-1.5 border border-slate-300 rounded-md text-xs bg-white outline-none">
-                            </div>
-
-                            <div class="flex gap-2 items-center">
-                                <input type="radio" name="edit-correct-key" value="D" onchange="updateLiveQuestionData()" class="w-3.5 h-3.5 text-blue-600">
-                                <span class="text-xs font-bold text-slate-500">D:</span>
-                                <input type="text" id="edit-opt-D" oninput="updateLiveQuestionData()" class="w-full p-1.5 border border-slate-300 rounded-md text-xs bg-white outline-none">
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -285,7 +243,7 @@
                 text: "Mengapa aturan hukum pidana harus tertulis dan ada terlebih dahulu sebelum suatu perbuatan dilakukan?",
                 options: {
                     A: "Untuk mempermudah tugas hakim dalam membuat hukum baru di pengadilan.",
-                    B: "Untuk menjamin kepastian hukum, fungsi pencegahan, dan membatasi kekuasaan aparat.",
+                    B: "Untuk menjamin kepastian hukum, fungsi pencegahan, and membatasi kekuasaan aparat.",
                     C: "Agar negara dapat menghukum seseorang secara retroaktif (berlaku surut) demi keadilan.",
                     D: "Agar hukum dapat berubah-ubah dengan cepat sesuai dengan selera penguasa."
                 },
@@ -516,7 +474,7 @@
                 options: {
                     A: "Pasal 32 UU No. 1 Tahun 2023",
                     B: "Pasal 33 UU No. 1 Tahun 2023",
-                    B: "Pasal 34 UU No. 1 Tahun 2023",
+                    C: "Pasal 34 UU No. 1 Tahun 2023",
                     D: "Pasal 35 UU No. 1 Tahun 2023"
                 },
                 correctAnswer: "B"
@@ -784,7 +742,7 @@
             {
                 text: "Dalam sebuah persidangan kasus perusakan pagar fasilitas tambang swasta oleh aktivis lingkungan, penasihat hukum terdakwa memohon agar majelis hakim menjatuhkan Pidana Tutupan (berdasarkan UU No. 20 Tahun 1946) alih-alih pidana penjara biasa, dengan alasan tindakan tersebut didasari oleh motif ideologis perlindungan lingkungan. Berdasarkan analisis yuridis-historis, mengapa permohonan penerapan Pidana Tutupan tersebut harus ditolak karena adanya kekeliruan kompetensi hukum?",
                 options: {
-                    A: "Karena Pidana Tutupan hanya boleh dijatuhkan jika terdakwa melakukan perusakan fasilitas umum milik pemerintah, bukan milik perusahaan swasta.",
+                    A: "Kejahatan dilakukan karena kelalaian (culpa) yang sangat berat dan menimbulkan kerugian materiil bagi negara dalam jumlah besar.",
                     B: "Karena aksi perusakan tersebut merupakan delik pidana umum murni (communia delicta), sedangkan Pidana Tutupan secara khusus hanya diperuntukkan bagi kejahatan politik kenegaraan di mana pelakunya tidak bercela secara moral umum.",
                     C: "Karena Pidana Tutupan merupakan jenis sanksi hukum yang sudah dihapus dan tidak lagi berlaku dalam sistem hukum pidana positif di Indonesia.",
                     D: "Karena motif perlindungan lingkungan merupakan alasan pembenar yang dapat membebaskan terdakwa dari segala tuntutan hukum, sehingga pidana tutupan tidak relevan."
@@ -896,7 +854,7 @@
                 options: {
                     A: "Paling singkat 1 hari hingga paling lama 6 bulan.",
                     B: "Paling singkat 1 bulan hingga paling lama 6 bulan.",
-                    C: "Paling singkat 1 bulan hingga paling lama 1 tahun.",
+                    C: "Paling singkat 1 month hingga paling lama 1 tahun.",
                     D: "Paling singkat 3 bulan hingga paling lama 2 tahun."
                 },
                 correctAnswer: "A"
@@ -1172,7 +1130,7 @@
                 correctAnswer: "C"
             },
             {
-                text: "Dalam konsep Restorative Justice Progresif, bagaimana seharusnya kedudukan pidana kurungan pengganti dalam mekanisme eksekusi pembayaran restitusi atau pemulihan hak korban?",
+                text: "In konsep Restorative Justice Progresif, bagaimana seharusnya kedudukan pidana kurungan pengganti dalam mekanisme eksekusi pembayaran restitusi atau pemulihan hak korban?",
                 options: {
                     A: "Sebagai opsi utama yang setara dan bebas dipilih oleh terpidana sejak awal.",
                     B: "Sebagai ultimum remedium (upaya terakhir) yang baru diterapkan jika upaya pelacakan dan sita eksekusi aset tidak membuahkan hasil.",
@@ -1503,60 +1461,6 @@
                 : "px-5 py-2.5 bg-amber-50 border border-amber-300 text-amber-700 font-semibold rounded-xl hover:bg-amber-100 transition flex items-center gap-2 cursor-pointer";
 
             initNavGrid();
-            loadEditorData(); // Muat data soal ke panel Editor di sebelah kanan
-            saveCurrentState();
-        }
-
-        // ----------------------------------------------------
-        // ENGINE LIVE EDITOR TAMBAHAN (MENGUBAH DATA LIVE)
-        // ----------------------------------------------------
-        function loadEditorData() {
-            const q = questions[currentQuestionIndex];
-            document.getElementById('editor-num-info').innerText = `(#${currentQuestionIndex + 1})`;
-            document.getElementById('edit-question-text').value = q.text;
-            
-            // Masukkan data teks jawaban ke input editor
-            document.getElementById('edit-opt-A').value = q.options.A || '';
-            document.getElementById('edit-opt-B').value = q.options.B || '';
-            document.getElementById('edit-opt-C').value = q.options.C || '';
-            document.getElementById('edit-opt-D').value = q.options.D || '';
-            
-            // Tandai radio button sesuai kunci jawaban saat ini
-            const radios = document.getElementsByName('edit-correct-key');
-            radios.forEach(radio => {
-                radio.checked = (radio.value === q.correctAnswer);
-            });
-        }
-
-        function updateLiveQuestionData() {
-            const q = questions[currentQuestionIndex];
-            
-            // Update teks pertanyaan
-            q.text = document.getElementById('edit-question-text').value;
-            
-            // Update teks pilihan jawaban
-            q.options.A = document.getElementById('edit-opt-A').value;
-            q.options.B = document.getElementById('edit-opt-B').value;
-            q.options.C = document.getElementById('edit-opt-C').value;
-            q.options.D = document.getElementById('edit-opt-D').value;
-            
-            // Update kunci jawaban dari radio button yang terpilih
-            const selectedRadio = document.querySelector('input[name="edit-correct-key"]:checked');
-            if (selectedRadio) {
-                q.correctAnswer = selectedRadio.value;
-            }
-            
-            // Segarkan visual workspace soal kiri secara dinamis tanpa berpindah halaman
-            document.getElementById('question-text').innerHTML = q.text;
-            
-            const container = document.getElementById('options-container');
-            const childs = container.children;
-            if(childs.length === 4) {
-                childs[0].querySelector('.flex-1').innerText = q.options.A;
-                childs[1].querySelector('.flex-1').innerText = q.options.B;
-                childs[2].querySelector('.flex-1').innerText = q.options.C;
-                childs[3].querySelector('.flex-1').innerText = q.options.D;
-            }
             saveCurrentState();
         }
 
